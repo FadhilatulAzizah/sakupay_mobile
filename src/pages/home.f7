@@ -1,25 +1,81 @@
 <template>
   <div class="page no-navbar" data-name="home">
-    <div class="page-content" style="background: #F1F5F9; min-height: 100vh;">
 
-      <!-- Header -->
-      <div style="background: linear-gradient(135deg, #0EA5E9, #0284C7); padding: 50px 20px 80px; position: relative;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-          <div>
-            <p style="color: #BAE6FD; margin: 0; font-size: 13px;">Selamat datang,</p>
-            <h2 id="nama-user" style="color: #fff; margin: 0; font-size: 20px; font-weight: bold;">-</h2>
-          </div>
-          <div style="display: flex; gap: 10px;">
-            <a href="/riwayat/" class="link">
-              <i class="material-icons" style="color: #fff; font-size: 28px;">history</i>
-            </a>
-            <a id="btn-logout" class="link">
-              <i class="material-icons" style="color: #fff; font-size: 28px;">logout</i>
-            </a>
-          </div>
+    <!-- ════════════════════════════════════════════
+         NAVBAR ATAS — FIXED (tidak ikut scroll)
+         Tetap di atas layar saat konten di-scroll.
+    ════════════════════════════════════════════ -->
+    <div style="
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 500;
+      background: linear-gradient(135deg, #0EA5E9, #0284C7);
+      padding: 50px 20px 15px;
+    ">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <p style="color: #BAE6FD; margin: 0; font-size: 13px;">Selamat datang,</p>
+          <h2 id="nama-user" style="color: #fff; margin: 0; font-size: 20px; font-weight: bold;">-</h2>
         </div>
+        <div style="display: flex; gap: 10px;">
+          <a href="/riwayat/" class="link">
+            <i class="material-icons" style="color: #fff; font-size: 28px;">history</i>
+          </a>
+          <a id="btn-logout" class="link">
+            <i class="material-icons" style="color: #fff; font-size: 28px;">logout</i>
+          </a>
+        </div>
+      </div>
+    </div>
 
-        <!-- Kartu Saldo -->
+    <!-- ════════════════════════════════════════════
+         NAVBAR BAWAH — FIXED (tidak ikut scroll)
+         Menu: Beranda / Riwayat / E-Statement / Smart Budget
+    ════════════════════════════════════════════ -->
+    <div style="
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      z-index: 500;
+      background: #fff;
+      border-top: 1px solid #E2E8F0;
+      display: flex;
+      align-items: center;
+      height: 60px;
+    ">
+      <!-- Beranda (aktif) -->
+      <a href="/home/" class="link" style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; text-decoration: none; padding: 6px 0;">
+        <i class="material-icons" style="color: #0EA5E9; font-size: 24px;">home</i>
+        <span style="font-size: 10px; color: #0EA5E9; font-weight: bold;">Beranda</span>
+      </a>
+      <!-- Riwayat -->
+      <a href="/riwayat/" class="link" style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; text-decoration: none; padding: 6px 0;">
+        <i class="material-icons" style="color: #94A3B8; font-size: 24px;">receipt_long</i>
+        <span style="font-size: 10px; color: #94A3B8;">Riwayat</span>
+      </a>
+      <!-- E-Statement -->
+      <a href="/estatement/" class="link" style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; text-decoration: none; padding: 6px 0;">
+        <i class="material-icons" style="color: #94A3B8; font-size: 24px;">picture_as_pdf</i>
+        <span style="font-size: 10px; color: #94A3B8;">E-Statement</span>
+      </a>
+      <!-- Smart Budget -->
+      <a href="/smart-budget/" class="link" style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; text-decoration: none; padding: 6px 0;">
+        <i class="material-icons" style="color: #94A3B8; font-size: 24px;">savings</i>
+        <span style="font-size: 10px; color: #94A3B8;">Smart Budget</span>
+      </a>
+    </div>
+
+    <!-- ════════════════════════════════════════════
+         KONTEN UTAMA — bisa di-scroll
+         Padding atas  = tinggi fixed navbar atas  (~115px)
+         Padding bawah = tinggi fixed navbar bawah (~68px)
+    ════════════════════════════════════════════ -->
+    <div class="page-content" style="background: #F1F5F9; padding-top: 0; padding-bottom: 68px;">
+
+      <!-- Area biru (sambungan warna dari navbar atas) + Kartu Saldo -->
+      <div style="
+        background: linear-gradient(135deg, #0EA5E9, #0284C7);
+        padding: 115px 20px 60px;
+      ">
         <div style="background: rgba(255,255,255,0.15); border-radius: 20px; padding: 20px; backdrop-filter: blur(10px);">
           <p style="color: #BAE6FD; margin: 0 0 5px; font-size: 13px;">Saldo Anda</p>
           <h1 id="saldo-user" style="color: #fff; margin: 0; font-size: 32px; font-weight: bold;">Rp -</h1>
@@ -27,79 +83,41 @@
         </div>
       </div>
 
-      <!-- Menu Utama -->
+      <!-- ── Menu Utama: 3 kolom (Terima · Kirim · Isi Saldo) ── -->
       <div style="padding: 0 15px; margin-top: -40px;">
-        <div style="background: #fff; border-radius: 20px; padding: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.1);">
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-            
+        <div style="background: #fff; border-radius: 20px; padding: 22px 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.1);">
+          <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px;">
+
             <!-- Terima -->
             <a href="/qr-terima/" class="link" style="text-decoration: none;">
-              <div style="background: #E0F2FE; border-radius: 15px; padding: 20px; text-align: center;">
-                <div style="width: 55px; height: 55px; background: #0EA5E9; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px;">
-                  <i class="material-icons" style="color: #fff; font-size: 28px;">qr_code</i>
+              <div style="text-align: center; padding: 4px;">
+                <div style="width: 56px; height: 56px; background: #0EA5E9; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 9px;">
+                  <i class="material-icons" style="color: #fff; font-size: 27px;">qr_code</i>
                 </div>
                 <p style="margin: 0; font-size: 13px; font-weight: bold; color: #0EA5E9;">Terima</p>
-                <p style="margin: 2px 0 0; font-size: 11px; color: #64748B;">Buat QR</p>
+                <p style="margin: 2px 0 0; font-size: 10px; color: #64748B;">Buat QR</p>
               </div>
             </a>
 
             <!-- Kirim -->
             <a href="/qr-scan/" class="link" style="text-decoration: none;">
-              <div style="background: #e8f5e9; border-radius: 15px; padding: 20px; text-align: center;">
-                <div style="width: 55px; height: 55px; background: #2e7d32; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px;">
-                  <i class="material-icons" style="color: #fff; font-size: 28px;">qr_code_scanner</i>
+              <div style="text-align: center; padding: 4px;">
+                <div style="width: 56px; height: 56px; background: #2e7d32; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 9px;">
+                  <i class="material-icons" style="color: #fff; font-size: 27px;">qr_code_scanner</i>
                 </div>
                 <p style="margin: 0; font-size: 13px; font-weight: bold; color: #2e7d32;">Kirim</p>
-                <p style="margin: 2px 0 0; font-size: 11px; color: #64748B;">Scan QR</p>
+                <p style="margin: 2px 0 0; font-size: 10px; color: #64748B;">Scan QR</p>
               </div>
             </a>
-
-            <!-- Riwayat -->
-            <a href="/riwayat/" class="link" style="text-decoration: none;">
-              <div style="background: #fff3e0; border-radius: 15px; padding: 20px; text-align: center;">
-                <div style="width: 55px; height: 55px; background: #e65100; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px;">
-                  <i class="material-icons" style="color: #fff; font-size: 28px;">receipt_long</i>
-                </div>
-                <p style="margin: 0; font-size: 13px; font-weight: bold; color: #e65100;">Riwayat</p>
-                <p style="margin: 2px 0 0; font-size: 11px; color: #64748B;">Transaksi</p>
-              </div>
-            </a>
-
-            <!-- E-Statement -->
-            <a href="/estatement/" class="link" style="text-decoration: none;">
-              <div style="background: #fce4ec; border-radius: 15px; padding: 20px; text-align: center;">
-                <div style="width: 55px; height: 55px; background: #c62828; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px;">
-                  <i class="material-icons" style="color: #fff; font-size: 28px;">picture_as_pdf</i>
-                </div>
-                <p style="margin: 0; font-size: 13px; font-weight: bold; color: #c62828;">E-Statement</p>
-                <p style="margin: 2px 0 0; font-size: 11px; color: #64748B;">Rekap Bulanan</p>
-              </div>
-            </a>
-
 
             <!-- Isi Saldo -->
-            <a href="/isi-saldo/" class="link" style="text-decoration: none; grid-column: span 2;">
-              <div style="background: #E8F5E9; border-radius: 15px; padding: 15px 20px; text-align: center; display: flex; align-items: center; justify-content: center; gap: 15px;">
-                <div style="width: 50px; height: 50px; background: #388E3C; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                  <i class="material-icons" style="color: #fff; font-size: 26px;">account_balance_wallet</i>
+            <a href="/isi-saldo/" class="link" style="text-decoration: none;">
+              <div style="text-align: center; padding: 4px;">
+                <div style="width: 56px; height: 56px; background: #388E3C; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 9px;">
+                  <i class="material-icons" style="color: #fff; font-size: 25px;">account_balance_wallet</i>
                 </div>
-                <div style="text-align: left;">
-                  <p style="margin: 0; font-size: 14px; font-weight: bold; color: #388E3C;">Isi Saldo</p>
-                  <p style="margin: 2px 0 0; font-size: 11px; color: #64748B;">Topup via Merchant</p>
-                </div>
-              </div>
-            </a>
-
-            <!-- Smart Budget -->
-            <a href="/smart-budget/" class="link" style="text-decoration: none; grid-column: span 2;">
-              <div style="background: #EEF2FF; border-radius: 15px; padding: 15px 20px; text-align: center; display: flex; align-items: center; justify-content: center; gap: 15px;">
-                <div style="width: 50px; height: 50px; background: #6366F1; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                  <i class="material-icons" style="color: #fff; font-size: 26px;">savings</i>
-                </div>
-                <div style="text-align: left;">
-                  <p style="margin: 0; font-size: 14px; font-weight: bold; color: #6366F1;">Smart Budget</p>
-                  <p style="margin: 2px 0 0; font-size: 11px; color: #64748B;">Atur Anggaran Bulanan</p>
-                </div>
+                <p style="margin: 0; font-size: 13px; font-weight: bold; color: #388E3C;">Isi Saldo</p>
+                <p style="margin: 2px 0 0; font-size: 10px; color: #64748B;">Topup via Merchant</p>
               </div>
             </a>
 
@@ -107,9 +125,14 @@
         </div>
       </div>
 
-      <!-- Transaksi Terakhir -->
+      <!-- ── Transaksi Terakhir ── -->
       <div style="padding: 15px;">
-        <h3 style="margin: 0 0 10px; font-size: 16px; color: #0EA5E9;">Transaksi Terakhir</h3>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+          <h3 style="margin: 0; font-size: 16px; color: #0EA5E9; font-weight: bold;">Transaksi Terakhir</h3>
+          <a href="/riwayat/" class="link" style="font-size: 13px; color: #0EA5E9; font-weight: bold; text-decoration: none; display: flex; align-items: center; gap: 1px;">
+            Lihat Semua <i class="material-icons" style="font-size: 17px; line-height: 1;">chevron_right</i>
+          </a>
+        </div>
         <div id="list-transaksi" style="background: #fff; border-radius: 15px; padding: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
           <p style="text-align: center; color: #CBD5E1; margin: 20px 0;">Memuat transaksi...</p>
         </div>
@@ -169,6 +192,9 @@
               judul = 'Terima dari ' + t.nama_pengirim;
               nominal = '+Rp ' + Number(t.nominal).toLocaleString('id-ID');
             }
+            const tgl = new Date(t.dibuat_pada);
+            const tglStr = tgl.toLocaleDateString('id-ID');
+            const jamStr = tgl.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
             return `
               <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #F1F5F9;">
                 <div style="display:flex;align-items:center;gap:12px;">
@@ -177,7 +203,7 @@
                   </div>
                   <div>
                     <p style="margin:0;font-size:14px;font-weight:bold;color:#1E293B;">${judul}</p>
-                    <p style="margin:0;font-size:11px;color:#94A3B8;">${new Date(t.dibuat_pada).toLocaleDateString('id-ID')}</p>
+                    <p style="margin:0;font-size:11px;color:#94A3B8;">${tglStr} • ${jamStr}</p>
                   </div>
                 </div>
                 <p style="margin:0;font-size:14px;font-weight:bold;color:${warna};">${nominal}</p>

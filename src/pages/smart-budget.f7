@@ -12,7 +12,7 @@
       </div>
     </div>
 
-    <div class="page-content" style="background: #F1F5F9;">
+    <div class="page-content" style="background: #F1F5F9; padding-bottom: 68px;">
       <div style="padding: 15px;">
 
         <!-- Pilih Bulan -->
@@ -60,6 +60,26 @@
         </div>
 
       </div>
+    </div>
+
+    <!-- ════ NAVBAR BAWAH FIXED — tidak ikut scroll ════ -->
+    <div style="position:fixed;bottom:0;left:0;right:0;z-index:500;background:#fff;border-top:1px solid #E2E8F0;display:flex;align-items:center;height:60px;">
+      <a href="/home/" class="link" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;text-decoration:none;padding:6px 0;">
+        <i class="material-icons" style="color:#94A3B8;font-size:24px;">home</i>
+        <span style="font-size:10px;color:#94A3B8;">Beranda</span>
+      </a>
+      <a href="/riwayat/" class="link" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;text-decoration:none;padding:6px 0;">
+        <i class="material-icons" style="color:#94A3B8;font-size:24px;">receipt_long</i>
+        <span style="font-size:10px;color:#94A3B8;">Riwayat</span>
+      </a>
+      <a href="/estatement/" class="link" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;text-decoration:none;padding:6px 0;">
+        <i class="material-icons" style="color:#94A3B8;font-size:24px;">picture_as_pdf</i>
+        <span style="font-size:10px;color:#94A3B8;">E-Statement</span>
+      </a>
+      <a href="/smart-budget/" class="link" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;text-decoration:none;padding:6px 0;">
+        <i class="material-icons" style="color:#0EA5E9;font-size:24px;">savings</i>
+        <span style="font-size:10px;color:#0EA5E9;font-weight:bold;">Smart Budget</span>
+      </a>
     </div>
   </div>
 </template>
@@ -205,13 +225,14 @@
                   </div>
 
                   <p style="margin:0 0 8px;font-size:13px;color:#64748B;">Budget bulanan</p>
-                  <div style="display:flex;align-items:center;border:2px solid #6366F1;border-radius:10px;padding:12px 15px;margin-bottom:20px;">
+                  <div style="display:flex;align-items:center;border:2px solid #6366F1;border-radius:10px;padding:12px 15px;margin-bottom:8px;">
                     <span style="color:#6366F1;font-weight:bold;font-size:16px;margin-right:8px;">Rp</span>
                     <input type="number" id="input-budget-nominal" placeholder="0" min="1000"
                       style="border:none;outline:none;font-size:18px;font-weight:bold;color:#6366F1;width:100%;"/>
                   </div>
+                  <p id="info-kategori-ada" style="display:none;margin:0 0 16px;font-size:12px;color:#6366F1;background:#EEF2FF;border-radius:8px;padding:8px 10px;"></p>
 
-                  <button id="btn-simpan-kategori" class="button button-fill" style="background:#6366F1;border-radius:10px;height:46px;font-size:14px;font-weight:bold;">
+                  <button id="btn-simpan-kategori" class="button button-fill" style="background:#6366F1;border-radius:10px;height:46px;font-size:14px;font-weight:bold;margin-top:12px;">
                     Simpan Kategori
                   </button>
                 </div>
@@ -221,6 +242,19 @@
         `,
         on: {
           opened(p) {
+            const infoAda = p.el.querySelector('#info-kategori-ada');
+
+            const cekKategoriAda = (nama) => {
+              const ada = kategoriSaatIni.find(k => k.nama_kategori === nama);
+              if (ada) {
+                infoAda.style.display = 'block';
+                infoAda.textContent = `"${nama}" sudah ada bulan ini (budget saat ini: ${rupiah(ada.budget_bulanan)}). Nominal yang diisi akan DITAMBAHKAN ke budget ini, bukan bikin kartu baru.`;
+              } else {
+                infoAda.style.display = 'none';
+              }
+            };
+            cekKategoriAda(kategoriTerpilih.nama);
+
             const chips = p.el.querySelectorAll('.chip-pilih-kategori');
             chips.forEach(chip => {
               chip.addEventListener('click', () => {
@@ -237,7 +271,12 @@
 
                 const boxCustom = p.el.querySelector('#box-nama-custom');
                 boxCustom.style.display = kategoriTerpilih.nama === 'Lainnya' ? 'block' : 'none';
+                cekKategoriAda(kategoriTerpilih.nama);
               });
+            });
+
+            p.el.querySelector('#input-nama-custom')?.addEventListener('input', (e) => {
+              cekKategoriAda(e.target.value.trim());
             });
 
             p.el.querySelector('#btn-simpan-kategori').addEventListener('click', async () => {
@@ -269,7 +308,10 @@
                 $f7.dialog.close();
                 if (hasil.sukses) {
                   popup.close();
-                  $f7.toast.create({ text: 'Kategori budget tersimpan', closeTimeout: 2000 }).open();
+                  const teksToast = hasil.digabung
+                    ? `Budget ${namaKategori} ditambah ${rupiah(nominal)}`
+                    : 'Kategori budget tersimpan';
+                  $f7.toast.create({ text: teksToast, closeTimeout: 2000 }).open();
                   muatBudget();
                 } else {
                   $f7.dialog.alert(hasil.pesan || 'Gagal menyimpan', 'Gagal');
