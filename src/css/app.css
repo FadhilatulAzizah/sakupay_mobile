@@ -1,0 +1,117 @@
+/* Import Framework7 */
+@import 'framework7/css/bundle';
+@import './icons.css';
+
+/* ===================================
+   SakuPay Theme — Abu-abu & Biru Langit
+   =================================== */
+:root {
+  --sp-sky: #0EA5E9;
+  --sp-sky-dark: #0284C7;
+  --sp-sky-light: #E0F2FE;
+  --sp-sky-light2: #BAE6FD;
+  --sp-slate-900: #1E293B;
+  --sp-slate-700: #334155;
+  --sp-slate-500: #64748B;
+  --sp-slate-400: #94A3B8;
+  --sp-slate-200: #E2E8F0;
+  --sp-slate-100: #F1F5F9;
+  --sp-bg: #F1F5F9;
+}
+
+/* Global */
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  background: var(--sp-bg);
+}
+
+/* ===== Navbar ===== */
+.navbar {
+  background: linear-gradient(120deg, var(--sp-sky) 0%, var(--sp-sky-dark) 60%, var(--sp-slate-700) 130%) !important;
+  box-shadow: 0 2px 12px rgba(14, 165, 233, 0.25);
+}
+
+.navbar .title,
+.navbar .link,
+.navbar i {
+  color: #fff !important;
+}
+
+.navbar-bg {
+  background: linear-gradient(120deg, var(--sp-sky) 0%, var(--sp-sky-dark) 60%, var(--sp-slate-700) 130%) !important;
+}
+
+/* ===== Buttons ===== */
+.button-fill {
+  background: linear-gradient(135deg, var(--sp-sky) 0%, var(--sp-sky-dark) 100%) !important;
+  border: none !important;
+  box-shadow: 0 4px 14px rgba(14, 165, 233, 0.35);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.button-fill:active {
+  transform: scale(0.97);
+  box-shadow: 0 2px 8px rgba(14, 165, 233, 0.25);
+}
+
+.button:not(.button-fill) {
+  color: var(--sp-sky-dark) !important;
+  border-color: var(--sp-sky) !important;
+}
+
+/* ===== Link ===== */
+.link {
+  color: var(--sp-sky-dark) !important;
+}
+
+/* ===== Page ===== */
+.page-content {
+  background: var(--sp-bg);
+}
+
+/* ===== Input ===== */
+input {
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+input:focus {
+  border-color: var(--sp-sky) !important;
+  box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.15);
+  outline: none;
+}
+
+/* ===== Card ===== */
+.card {
+  border-radius: 18px;
+  box-shadow: 0 4px 18px rgba(51, 65, 85, 0.10);
+  border: 1px solid rgba(148, 163, 184, 0.15);
+}
+
+/* ===== Toolbar / Tabbar (kalau dipakai) ===== */
+.toolbar {
+  background: #fff !important;
+  border-top: 1px solid var(--sp-slate-200);
+}
+
+.tab-link-active {
+  color: var(--sp-sky-dark) !important;
+}
+
+/* ===== Scrollbar tipis di halaman list (kosmetik) ===== */
+::-webkit-scrollbar {
+  width: 4px;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--sp-slate-400);
+  border-radius: 10px;
+}
+
+/* ===== Halus transisi background halaman (kosmetik, tidak ganggu logika) ===== */
+.page {
+  background: var(--sp-bg);
+}

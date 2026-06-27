@@ -1,0 +1,489 @@
+<template>
+  <div class="page" data-name="smart-budget">
+    <div class="navbar" style="background: #6366F1;">
+      <div class="navbar-bg"></div>
+      <div class="navbar-inner">
+        <div class="left">
+          <a class="link back" style="color: #fff;">
+            <i class="material-icons">arrow_back</i>
+          </a>
+        </div>
+        <div class="title" style="color: #fff;">Smart Budget</div>
+      </div>
+    </div>
+
+    <div class="page-content" style="background: #F1F5F9;">
+      <div style="padding: 15px;">
+
+        <!-- Pilih Bulan -->
+        <div style="display: flex; align-items: center; justify-content: space-between; background: #fff; border-radius: 12px; padding: 10px 15px; margin-bottom: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+          <a id="btn-bulan-prev" class="link">
+            <i class="material-icons" style="color: #6366F1;">chevron_left</i>
+          </a>
+          <p id="label-bulan" style="margin: 0; font-size: 15px; font-weight: bold; color: #1E293B;">-</p>
+          <a id="btn-bulan-next" class="link">
+            <i class="material-icons" style="color: #6366F1;">chevron_right</i>
+          </a>
+        </div>
+
+        <!-- Dashboard Ringkasan -->
+        <div style="background: linear-gradient(135deg, #6366F1, #4F46E5); border-radius: 15px; padding: 18px; margin-bottom: 15px;">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <div>
+              <p style="margin: 0; font-size: 11px; color: #C7D2FE;">Total Budget</p>
+              <p id="ringkasan-total-budget" style="margin: 2px 0 0; font-size: 16px; font-weight: bold; color: #fff;">Rp 0</p>
+            </div>
+            <div>
+              <p style="margin: 0; font-size: 11px; color: #C7D2FE;">Total Pengeluaran</p>
+              <p id="ringkasan-total-keluar" style="margin: 2px 0 0; font-size: 16px; font-weight: bold; color: #fff;">Rp 0</p>
+            </div>
+            <div>
+              <p style="margin: 0; font-size: 11px; color: #C7D2FE;">Sisa Budget</p>
+              <p id="ringkasan-sisa" style="margin: 2px 0 0; font-size: 16px; font-weight: bold; color: #fff;">Rp 0</p>
+            </div>
+            <div>
+              <p style="margin: 0; font-size: 11px; color: #C7D2FE;">Paling Boros</p>
+              <p id="ringkasan-terbesar" style="margin: 2px 0 0; font-size: 16px; font-weight: bold; color: #fff;">-</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tombol Tambah Kategori -->
+        <button id="btn-tambah-kategori" class="button button-fill" style="background: #6366F1; border-radius: 10px; height: 46px; font-size: 14px; font-weight: bold; margin-bottom: 15px;">
+          <i class="material-icons" style="vertical-align: middle; margin-right: 5px; font-size: 18px;">add</i>
+          Tambah Kategori Budget
+        </button>
+
+        <!-- List Kategori -->
+        <div id="list-kategori">
+          <p style="text-align: center; color: #CBD5E1; margin: 20px 0;">Memuat data...</p>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+  import Api from '../js/api.js';
+
+  export default (props, { $f7, $on }) => {
+    const namaBulan = ['', 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+
+    const PRESET_KATEGORI = [
+      { nama: 'Makanan', icon: 'restaurant', warna: '#F59E0B' },
+      { nama: 'Transportasi', icon: 'directions_car', warna: '#3B82F6' },
+      { nama: 'Belanja', icon: 'shopping_bag', warna: '#EC4899' },
+      { nama: 'Hiburan', icon: 'movie', warna: '#8B5CF6' },
+      { nama: 'Kesehatan', icon: 'local_hospital', warna: '#10B981' },
+      { nama: 'Pendidikan', icon: 'school', warna: '#6366F1' },
+      { nama: 'Lainnya', icon: 'category', warna: '#64748B' },
+    ];
+
+    const skrg = new Date();
+    let bulanAktif = skrg.getMonth() + 1;
+    let tahunAktif = skrg.getFullYear();
+    let kategoriSaatIni = [];
+
+    const rupiah = (n) => 'Rp ' + Number(n || 0).toLocaleString('id-ID');
+
+    // Warna progress bar berdasarkan persentase pemakaian budget (bukan warna kategori)
+    const warnaProgress = (persen) => {
+      if (persen <= 70) return '#22C55E';   // hijau - aman
+      if (persen <= 90) return '#F59E0B';   // kuning - waspada
+      if (persen <= 100) return '#EF4444';  // merah - hampir habis
+      return '#991B1B';                     // merah tua - terlampaui
+    };
+
+    const renderLabelBulan = () => {
+      document.getElementById('label-bulan').textContent = `${namaBulan[bulanAktif]} ${tahunAktif}`;
+    };
+
+    const renderRingkasan = (list) => {
+      const totalBudget = list.reduce((a, k) => a + Number(k.budget_bulanan), 0);
+      const totalKeluar = list.reduce((a, k) => a + Number(k.total_pengeluaran), 0);
+      const sisa = totalBudget - totalKeluar;
+      let terbesar = '-';
+      if (list.length > 0) {
+        const top = list.reduce((a, b) => Number(a.total_pengeluaran) > Number(b.total_pengeluaran) ? a : b);
+        if (Number(top.total_pengeluaran) > 0) terbesar = top.nama_kategori;
+      }
+      document.getElementById('ringkasan-total-budget').textContent = rupiah(totalBudget);
+      document.getElementById('ringkasan-total-keluar').textContent = rupiah(totalKeluar);
+      document.getElementById('ringkasan-sisa').textContent = rupiah(sisa);
+      document.getElementById('ringkasan-terbesar').textContent = terbesar;
+    };
+
+    const renderListKategori = (list) => {
+      const container = document.getElementById('list-kategori');
+      if (list.length === 0) {
+        container.innerHTML = `
+          <div style="background: #fff; border-radius: 15px; padding: 30px 20px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+            <i class="material-icons" style="font-size: 48px; color: #CBD5E1;">savings</i>
+            <p style="color: #94A3B8; margin: 10px 0 0; font-size: 13px;">Belum ada kategori budget bulan ini.<br/>Yuk buat yang pertama!</p>
+          </div>`;
+        return;
+      }
+      container.innerHTML = list.map(k => {
+        const persen = Number(k.budget_bulanan) > 0
+          ? Math.round((Number(k.total_pengeluaran) / Number(k.budget_bulanan)) * 100)
+          : 0;
+        const warna = warnaProgress(persen);
+        const sisa = Number(k.budget_bulanan) - Number(k.total_pengeluaran);
+        const barWidth = Math.min(persen, 100);
+        return `
+          <div class="kartu-kategori" data-id="${k.id}" style="background: #fff; border-radius: 15px; padding: 15px; margin-bottom: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); cursor: pointer;">
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 10px;">
+              <div style="width: 42px; height: 42px; border-radius: 50%; background: ${k.warna}22; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                <i class="material-icons" style="color: ${k.warna}; font-size: 22px;">${k.icon}</i>
+              </div>
+              <div style="flex: 1; min-width: 0;">
+                <p style="margin: 0; font-size: 14px; font-weight: bold; color: #1E293B;">${k.nama_kategori}</p>
+                <p style="margin: 0; font-size: 11px; color: #64748B;">${rupiah(k.total_pengeluaran)} / ${rupiah(k.budget_bulanan)}</p>
+              </div>
+              <span style="font-size: 13px; font-weight: bold; color: ${warna};">${persen}%</span>
+              <a class="btn-hapus-kategori link" data-id="${k.id}" style="padding: 4px;">
+                <i class="material-icons" style="color: #CBD5E1; font-size: 18px;">delete_outline</i>
+              </a>
+            </div>
+            <div style="background: #F1F5F9; border-radius: 8px; height: 8px; overflow: hidden;">
+              <div style="background: ${warna}; width: ${barWidth}%; height: 100%;"></div>
+            </div>
+            <p style="margin: 6px 0 0; font-size: 11px; color: #94A3B8;">
+              Sisa: <strong style="color: ${sisa < 0 ? '#991B1B' : '#1E293B'};">${rupiah(sisa)}</strong>
+            </p>
+          </div>`;
+      }).join('');
+    };
+
+    const muatBudget = async () => {
+      renderLabelBulan();
+      try {
+        const hasil = await Api.ambilBudget(bulanAktif, tahunAktif);
+        if (hasil.sukses) {
+          kategoriSaatIni = hasil.kategori || [];
+          renderRingkasan(kategoriSaatIni);
+          renderListKategori(kategoriSaatIni);
+        } else {
+          document.getElementById('list-kategori').innerHTML =
+            `<p style="text-align:center;color:#94A3B8;margin:20px 0;">${hasil.pesan || 'Gagal memuat data'}</p>`;
+        }
+      } catch (e) {
+        document.getElementById('list-kategori').innerHTML =
+          '<p style="text-align:center;color:#94A3B8;margin:20px 0;">Tidak bisa terhubung ke server</p>';
+      }
+    };
+
+    // ===== POPUP: Tambah Kategori Budget =====
+    const bukaPopupTambahKategori = () => {
+      let kategoriTerpilih = PRESET_KATEGORI[0];
+      const popup = $f7.popup.create({
+        content: `
+          <div class="popup">
+            <div class="page">
+              <div class="navbar" style="background: #6366F1;">
+                <div class="navbar-bg"></div>
+                <div class="navbar-inner">
+                  <div class="left"><a class="link popup-close" style="color:#fff;"><i class="material-icons">close</i></a></div>
+                  <div class="title" style="color:#fff;">Tambah Kategori Budget</div>
+                </div>
+              </div>
+              <div class="page-content" style="background:#F1F5F9;">
+                <div style="padding:20px;">
+                  <p style="margin:0 0 8px;font-size:13px;color:#64748B;">Pilih kategori</p>
+                  <div id="chip-kategori" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px;">
+                    ${PRESET_KATEGORI.map((k, i) => `
+                      <span class="chip-pilih-kategori" data-idx="${i}" style="padding:8px 14px;border-radius:20px;font-size:12px;cursor:pointer;background:${i === 0 ? '#6366F1' : '#fff'};color:${i === 0 ? '#fff' : '#64748B'};border:1px solid ${i === 0 ? '#6366F1' : '#E2E8F0'};">
+                        ${k.nama}
+                      </span>`).join('')}
+                  </div>
+
+                  <div id="box-nama-custom" style="display:none;margin-bottom:14px;">
+                    <p style="margin:0 0 8px;font-size:13px;color:#64748B;">Nama kategori</p>
+                    <input type="text" id="input-nama-custom" placeholder="Contoh: Tagihan Listrik"
+                      style="border:1px solid #E2E8F0;border-radius:10px;padding:12px 15px;width:100%;font-size:14px;box-sizing:border-box;"/>
+                  </div>
+
+                  <p style="margin:0 0 8px;font-size:13px;color:#64748B;">Budget bulanan</p>
+                  <div style="display:flex;align-items:center;border:2px solid #6366F1;border-radius:10px;padding:12px 15px;margin-bottom:20px;">
+                    <span style="color:#6366F1;font-weight:bold;font-size:16px;margin-right:8px;">Rp</span>
+                    <input type="number" id="input-budget-nominal" placeholder="0" min="1000"
+                      style="border:none;outline:none;font-size:18px;font-weight:bold;color:#6366F1;width:100%;"/>
+                  </div>
+
+                  <button id="btn-simpan-kategori" class="button button-fill" style="background:#6366F1;border-radius:10px;height:46px;font-size:14px;font-weight:bold;">
+                    Simpan Kategori
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        `,
+        on: {
+          opened(p) {
+            const chips = p.el.querySelectorAll('.chip-pilih-kategori');
+            chips.forEach(chip => {
+              chip.addEventListener('click', () => {
+                const idx = parseInt(chip.dataset.idx);
+                kategoriTerpilih = PRESET_KATEGORI[idx];
+                chips.forEach(c => {
+                  c.style.background = '#fff';
+                  c.style.color = '#64748B';
+                  c.style.borderColor = '#E2E8F0';
+                });
+                chip.style.background = '#6366F1';
+                chip.style.color = '#fff';
+                chip.style.borderColor = '#6366F1';
+
+                const boxCustom = p.el.querySelector('#box-nama-custom');
+                boxCustom.style.display = kategoriTerpilih.nama === 'Lainnya' ? 'block' : 'none';
+              });
+            });
+
+            p.el.querySelector('#btn-simpan-kategori').addEventListener('click', async () => {
+              const nominal = parseInt(p.el.querySelector('#input-budget-nominal').value);
+              if (!nominal || nominal < 1000) {
+                $f7.dialog.alert('Masukkan nominal budget yang valid', 'Peringatan');
+                return;
+              }
+              let namaKategori = kategoriTerpilih.nama;
+              if (namaKategori === 'Lainnya') {
+                const namaCustom = p.el.querySelector('#input-nama-custom').value.trim();
+                if (!namaCustom) {
+                  $f7.dialog.alert('Masukkan nama kategori', 'Peringatan');
+                  return;
+                }
+                namaKategori = namaCustom;
+              }
+
+              $f7.dialog.preloader('Menyimpan...');
+              try {
+                const hasil = await Api.buatBudget({
+                  nama_kategori: namaKategori,
+                  budget_bulanan: nominal,
+                  bulan: bulanAktif,
+                  tahun: tahunAktif,
+                  icon: kategoriTerpilih.icon,
+                  warna: kategoriTerpilih.warna,
+                });
+                $f7.dialog.close();
+                if (hasil.sukses) {
+                  popup.close();
+                  $f7.toast.create({ text: 'Kategori budget tersimpan', closeTimeout: 2000 }).open();
+                  muatBudget();
+                } else {
+                  $f7.dialog.alert(hasil.pesan || 'Gagal menyimpan', 'Gagal');
+                }
+              } catch (e) {
+                $f7.dialog.close();
+                $f7.dialog.alert('Tidak bisa terhubung ke server', 'Error');
+              }
+            });
+          },
+        },
+      });
+      popup.open();
+    };
+
+    // ===== POPUP: Detail Kategori + Riwayat + Tambah Pengeluaran =====
+    const bukaPopupDetail = async (idKategori) => {
+      const kat = kategoriSaatIni.find(k => k.id === idKategori);
+      if (!kat) return;
+
+      const popup = $f7.popup.create({
+        content: `
+          <div class="popup">
+            <div class="page">
+              <div class="navbar" style="background: ${kat.warna};">
+                <div class="navbar-bg"></div>
+                <div class="navbar-inner">
+                  <div class="left"><a class="link popup-close" style="color:#fff;"><i class="material-icons">close</i></a></div>
+                  <div class="title" style="color:#fff;">${kat.nama_kategori}</div>
+                </div>
+              </div>
+              <div class="page-content" style="background:#F1F5F9;">
+                <div style="padding:20px;">
+
+                  <div id="box-progress-detail" style="background:#fff;border-radius:15px;padding:20px;margin-bottom:15px;box-shadow:0 2px 10px rgba(0,0,0,0.05);"></div>
+
+                  <div style="background:#fff;border-radius:15px;padding:15px;margin-bottom:15px;box-shadow:0 2px 10px rgba(0,0,0,0.05);">
+                    <h3 style="margin:0 0 10px;font-size:14px;color:#1E293B;">Riwayat Pengeluaran</h3>
+                    <div id="list-pengeluaran-detail">
+                      <p style="text-align:center;color:#CBD5E1;margin:15px 0;font-size:13px;">Memuat...</p>
+                    </div>
+                  </div>
+
+                  <div style="background:#fff;border-radius:15px;padding:15px;box-shadow:0 2px 10px rgba(0,0,0,0.05);">
+                    <h3 style="margin:0 0 12px;font-size:14px;color:${kat.warna};">+ Catat Pengeluaran Baru</h3>
+                    <input type="text" id="input-nama-transaksi" placeholder="Nama transaksi (cth: Makan siang)"
+                      style="border:1px solid #E2E8F0;border-radius:10px;padding:12px 15px;width:100%;font-size:14px;box-sizing:border-box;margin-bottom:10px;"/>
+                    <input type="number" id="input-nominal-keluar" placeholder="Nominal (cth: 25000)" min="1"
+                      style="border:1px solid #E2E8F0;border-radius:10px;padding:12px 15px;width:100%;font-size:14px;box-sizing:border-box;margin-bottom:10px;"/>
+                    <input type="date" id="input-tanggal-keluar"
+                      style="border:1px solid #E2E8F0;border-radius:10px;padding:12px 15px;width:100%;font-size:14px;box-sizing:border-box;margin-bottom:14px;"/>
+                    <button id="btn-simpan-pengeluaran" class="button button-fill" style="background:${kat.warna};border-radius:10px;height:46px;font-size:14px;font-weight:bold;">
+                      Simpan Pengeluaran
+                    </button>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+          </div>
+        `,
+        on: {
+          opened(p) {
+            p.el.querySelector('#input-tanggal-keluar').value = new Date().toISOString().slice(0, 10);
+
+            const renderProgressDetail = (k) => {
+              const persen = Number(k.budget_bulanan) > 0
+                ? Math.round((Number(k.total_pengeluaran) / Number(k.budget_bulanan)) * 100)
+                : 0;
+              const warna = warnaProgress(persen);
+              const sisa = Number(k.budget_bulanan) - Number(k.total_pengeluaran);
+              const barWidth = Math.min(persen, 100);
+              p.el.querySelector('#box-progress-detail').innerHTML = `
+                <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px;">
+                  <span style="font-size:24px;font-weight:bold;color:${warna};">${persen}%</span>
+                  <span style="font-size:12px;color:#94A3B8;">terpakai</span>
+                </div>
+                <div style="background:#F1F5F9;border-radius:8px;height:10px;overflow:hidden;margin-bottom:12px;">
+                  <div style="background:${warna};width:${barWidth}%;height:100%;"></div>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;text-align:center;">
+                  <div>
+                    <p style="margin:0;font-size:10px;color:#94A3B8;">Budget</p>
+                    <p style="margin:2px 0 0;font-size:12px;font-weight:bold;color:#1E293B;">${rupiah(k.budget_bulanan)}</p>
+                  </div>
+                  <div>
+                    <p style="margin:0;font-size:10px;color:#94A3B8;">Pengeluaran</p>
+                    <p style="margin:2px 0 0;font-size:12px;font-weight:bold;color:#1E293B;">${rupiah(k.total_pengeluaran)}</p>
+                  </div>
+                  <div>
+                    <p style="margin:0;font-size:10px;color:#94A3B8;">Sisa</p>
+                    <p style="margin:2px 0 0;font-size:12px;font-weight:bold;color:${sisa < 0 ? '#991B1B' : '#1E293B'};">${rupiah(sisa)}</p>
+                  </div>
+                </div>`;
+            };
+            renderProgressDetail(kat);
+
+            const muatRiwayatDetail = async () => {
+              try {
+                const hasil = await Api.ambilPengeluaran(idKategori);
+                const cont = p.el.querySelector('#list-pengeluaran-detail');
+                if (hasil.sukses && hasil.pengeluaran.length > 0) {
+                  cont.innerHTML = hasil.pengeluaran.map(pe => `
+                    <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #F1F5F9;">
+                      <div>
+                        <p style="margin:0;font-size:13px;color:#1E293B;">${pe.nama_transaksi}</p>
+                        <p style="margin:0;font-size:11px;color:#94A3B8;">${new Date(pe.tanggal).toLocaleDateString('id-ID')}</p>
+                      </div>
+                      <p style="margin:0;font-size:13px;font-weight:bold;color:#EF4444;">-${rupiah(pe.nominal)}</p>
+                    </div>`).join('');
+                } else {
+                  cont.innerHTML = '<p style="text-align:center;color:#CBD5E1;margin:15px 0;font-size:13px;">Belum ada pengeluaran tercatat</p>';
+                }
+              } catch (e) {}
+            };
+            muatRiwayatDetail();
+
+            p.el.querySelector('#btn-simpan-pengeluaran').addEventListener('click', async () => {
+              const nama = p.el.querySelector('#input-nama-transaksi').value.trim();
+              const nominal = parseInt(p.el.querySelector('#input-nominal-keluar').value);
+              const tanggal = p.el.querySelector('#input-tanggal-keluar').value;
+              if (!nama) { $f7.dialog.alert('Masukkan nama transaksi', 'Peringatan'); return; }
+              if (!nominal || nominal < 1) { $f7.dialog.alert('Masukkan nominal yang valid', 'Peringatan'); return; }
+              if (!tanggal) { $f7.dialog.alert('Pilih tanggal', 'Peringatan'); return; }
+
+              $f7.dialog.preloader('Menyimpan...');
+              try {
+                const hasil = await Api.tambahPengeluaran({
+                  id_kategori_budget: idKategori,
+                  nama_transaksi: nama,
+                  nominal: nominal,
+                  tanggal: tanggal,
+                });
+                $f7.dialog.close();
+                if (hasil.sukses) {
+                  p.el.querySelector('#input-nama-transaksi').value = '';
+                  p.el.querySelector('#input-nominal-keluar').value = '';
+                  renderProgressDetail(hasil.kategori);
+                  muatRiwayatDetail();
+                  muatBudget();
+
+                  // FITUR 4: Peringatan otomatis berdasarkan persentase
+                  const persen = hasil.kategori.persentase;
+                  if (persen > 100) {
+                    $f7.dialog.alert('Budget telah terlampaui.', 'Peringatan Budget');
+                  } else if (persen >= 80) {
+                    $f7.dialog.alert('Perhatian! Budget kategori ini hampir habis.', 'Peringatan Budget');
+                  } else {
+                    $f7.toast.create({ text: 'Pengeluaran tersimpan', closeTimeout: 1500 }).open();
+                  }
+                } else {
+                  $f7.dialog.alert(hasil.pesan || 'Gagal menyimpan', 'Gagal');
+                }
+              } catch (e) {
+                $f7.dialog.close();
+                $f7.dialog.alert('Tidak bisa terhubung ke server', 'Error');
+              }
+            });
+          },
+        },
+      });
+      popup.open();
+    };
+
+    $on('pageInit', () => {
+      if (!Api.ambilToken()) {
+        $f7.views.main.router.navigate('/login/', { reloadAll: true });
+        return;
+      }
+
+      muatBudget();
+
+      document.getElementById('btn-bulan-prev').addEventListener('click', () => {
+        bulanAktif--;
+        if (bulanAktif < 1) { bulanAktif = 12; tahunAktif--; }
+        muatBudget();
+      });
+      document.getElementById('btn-bulan-next').addEventListener('click', () => {
+        bulanAktif++;
+        if (bulanAktif > 12) { bulanAktif = 1; tahunAktif++; }
+        muatBudget();
+      });
+
+      document.getElementById('btn-tambah-kategori').addEventListener('click', bukaPopupTambahKategori);
+
+      // Delegasi klik pada list kategori (card dirender ulang tiap muatBudget)
+      document.getElementById('list-kategori').addEventListener('click', (e) => {
+        const btnHapus = e.target.closest('.btn-hapus-kategori');
+        if (btnHapus) {
+          e.stopPropagation();
+          const id = parseInt(btnHapus.dataset.id);
+          $f7.dialog.confirm('Hapus kategori budget ini? Semua catatan pengeluarannya juga akan terhapus.', 'Hapus Kategori', async () => {
+            try {
+              const hasil = await Api.hapusBudget(id);
+              if (hasil.sukses) {
+                $f7.toast.create({ text: 'Kategori dihapus', closeTimeout: 1500 }).open();
+                muatBudget();
+              } else {
+                $f7.dialog.alert(hasil.pesan || 'Gagal menghapus', 'Gagal');
+              }
+            } catch (err) {
+              $f7.dialog.alert('Tidak bisa terhubung ke server', 'Error');
+            }
+          });
+          return;
+        }
+
+        const kartu = e.target.closest('.kartu-kategori');
+        if (kartu) {
+          bukaPopupDetail(parseInt(kartu.dataset.id));
+        }
+      });
+    });
+
+    return $render;
+  };
+</script>

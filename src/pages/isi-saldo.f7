@@ -1,0 +1,197 @@
+<template>
+  <div class="page" data-name="isi-saldo">
+    <div class="navbar" style="background: #0EA5E9;">
+      <div class="navbar-bg"></div>
+      <div class="navbar-inner">
+        <div class="left">
+          <a class="link back" style="color: #fff;">
+            <i class="material-icons">arrow_back</i>
+          </a>
+        </div>
+        <div class="title" style="color: #fff;">Isi Saldo</div>
+      </div>
+    </div>
+
+    <div class="page-content" style="background: #F1F5F9;">
+      <div style="padding: 20px;">
+
+        <!-- Info -->
+        <div style="background: #E0F2FE; border-radius: 12px; padding: 15px; margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
+          <i class="material-icons" style="color: #0EA5E9; font-size: 28px;">info</i>
+          <p style="margin: 0; font-size: 13px; color: #0369A1; line-height: 1.5;">
+            Pilih nominal, buat QR, lalu tunjukkan ke <strong>merchant/kasir</strong> untuk di-scan. Saldo akan langsung masuk setelah merchant konfirmasi.
+          </p>
+        </div>
+
+        <!-- Pilih Nominal -->
+        <div style="background: #fff; border-radius: 15px; padding: 20px; margin-bottom: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+          <h3 style="margin: 0 0 15px; color: #0EA5E9; font-size: 16px;">Pilih Nominal Isi Saldo</h3>
+
+          <div style="display: flex; align-items: center; border: 2px solid #0EA5E9; border-radius: 10px; padding: 12px 15px; margin-bottom: 12px;">
+            <span style="color: #0EA5E9; font-weight: bold; font-size: 16px; margin-right: 8px;">Rp</span>
+            <input type="number" id="input-nominal-isi" placeholder="0" min="10000"
+              style="border: none; outline: none; font-size: 20px; font-weight: bold; color: #0EA5E9; width: 100%;"/>
+          </div>
+
+          <!-- Nominal Cepat -->
+          <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 15px;">
+            <button class="btn-nominal-isi button" data-nominal="10000"
+              style="background: #E0F2FE; color: #0EA5E9; border-radius: 10px; padding: 8px 5px; font-size: 12px; border: none;">
+              Rp 10.000
+            </button>
+            <button class="btn-nominal-isi button" data-nominal="20000"
+              style="background: #E0F2FE; color: #0EA5E9; border-radius: 10px; padding: 8px 5px; font-size: 12px; border: none;">
+              Rp 20.000
+            </button>
+            <button class="btn-nominal-isi button" data-nominal="50000"
+              style="background: #E0F2FE; color: #0EA5E9; border-radius: 10px; padding: 8px 5px; font-size: 12px; border: none;">
+              Rp 50.000
+            </button>
+            <button class="btn-nominal-isi button" data-nominal="100000"
+              style="background: #E0F2FE; color: #0EA5E9; border-radius: 10px; padding: 8px 5px; font-size: 12px; border: none;">
+              Rp 100.000
+            </button>
+            <button class="btn-nominal-isi button" data-nominal="200000"
+              style="background: #E0F2FE; color: #0EA5E9; border-radius: 10px; padding: 8px 5px; font-size: 12px; border: none;">
+              Rp 200.000
+            </button>
+            <button class="btn-nominal-isi button" data-nominal="500000"
+              style="background: #E0F2FE; color: #0EA5E9; border-radius: 10px; padding: 8px 5px; font-size: 12px; border: none;">
+              Rp 500.000
+            </button>
+          </div>
+
+          <button id="btn-buat-qr-isi" class="button button-fill"
+            style="background: #0EA5E9; border-radius: 10px; height: 48px; font-size: 15px; font-weight: bold;">
+            <i class="material-icons" style="vertical-align: middle; margin-right: 5px;">qr_code</i>
+            Buat QR Isi Saldo
+          </button>
+        </div>
+
+        <!-- QR Code hasil -->
+        <div id="box-qr-isi" style="display: none; background: #fff; border-radius: 15px; padding: 20px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+          <p style="color: #64748B; margin: 0 0 5px; font-size: 13px;">QR Isi Saldo senilai</p>
+          <h2 id="nominal-qr-isi" style="color: #0EA5E9; margin: 0 0 15px; font-size: 26px; font-weight: bold;">-</h2>
+          <div style="display: inline-block; padding: 10px; background: #fff; border: 2px solid #E2E8F0; border-radius: 12px;">
+            <img id="gambar-qr-isi" src="" style="width: 220px; height: 220px; border-radius: 8px; display: block;"/>
+          </div>
+
+          <div style="margin-top: 15px; background: #FFF3E0; border-radius: 10px; padding: 12px;">
+            <p style="margin: 0; font-size: 13px; color: #E65100; font-weight: bold;">
+              <i class="material-icons" style="font-size: 16px; vertical-align: middle;">timer</i>
+              QR berlaku: <span id="timer-isi" style="font-size: 16px;">60</span> detik
+            </p>
+          </div>
+
+          <div style="margin-top: 12px; background: #F1F5F9; border-radius: 10px; padding: 10px;">
+            <p style="margin: 0 0 5px; font-size: 11px; color: #64748B;">Token (untuk kasir input manual):</p>
+            <p id="token-isi" style="margin: 0; font-size: 11px; color: #0EA5E9; word-break: break-all; font-family: monospace;"></p>
+            <button id="btn-copy-isi" class="button" style="margin-top: 8px; border: 1px solid #0EA5E9; color: #0EA5E9; border-radius: 8px; height: 32px; font-size: 12px;">
+              <i class="material-icons" style="font-size: 14px; vertical-align: middle;">content_copy</i>
+              Salin Token
+            </button>
+          </div>
+
+          <p style="color: #94A3B8; font-size: 12px; margin: 12px 0 0;">
+            Tunjukkan QR ini ke merchant/kasir untuk di-scan
+          </p>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+  import Api from '../js/api.js';
+
+  export default (props, { $f7, $on }) => {
+    let timerInterval = null;
+    let tokenSaatIni = '';
+
+    $on('pageInit', () => {
+      // Tombol nominal cepat
+      document.querySelectorAll('.btn-nominal-isi').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.getElementById('input-nominal-isi').value = btn.dataset.nominal;
+          document.querySelectorAll('.btn-nominal-isi').forEach(b => {
+            b.style.background = '#E0F2FE';
+            b.style.color = '#0EA5E9';
+          });
+          btn.style.background = '#0EA5E9';
+          btn.style.color = '#fff';
+        });
+      });
+
+      // Buat QR isi saldo
+      document.getElementById('btn-buat-qr-isi').addEventListener('click', async () => {
+        const nominal = parseInt(document.getElementById('input-nominal-isi').value);
+        if (!nominal || nominal < 10000) {
+          $f7.dialog.alert('Masukkan nominal minimal Rp 10.000', 'Peringatan');
+          return;
+        }
+
+        $f7.dialog.preloader('Membuat QR...');
+        try {
+          const hasil = await Api.buatQRIsiSaldo(nominal);
+          $f7.dialog.close();
+
+          if (hasil.sukses) {
+            document.getElementById('gambar-qr-isi').src = hasil.qr;
+            document.getElementById('nominal-qr-isi').textContent =
+              'Rp ' + Number(nominal).toLocaleString('id-ID');
+            document.getElementById('box-qr-isi').style.display = 'block';
+
+            tokenSaatIni = hasil.token || '';
+            document.getElementById('token-isi').textContent = tokenSaatIni;
+
+            // Scroll ke QR
+            document.getElementById('box-qr-isi').scrollIntoView({ behavior: 'smooth' });
+
+            // Timer countdown
+            if (timerInterval) clearInterval(timerInterval);
+            let detik = 60;
+            document.getElementById('timer-isi').textContent = detik;
+            timerInterval = setInterval(() => {
+              detik--;
+              document.getElementById('timer-isi').textContent = detik;
+              if (detik <= 0) {
+                clearInterval(timerInterval);
+                document.getElementById('timer-isi').textContent = '0';
+                document.getElementById('box-qr-isi').style.display = 'none';
+                $f7.dialog.alert('QR sudah kadaluarsa. Buat QR baru.', 'Info');
+              }
+            }, 1000);
+          } else {
+            $f7.dialog.alert(hasil.pesan || 'Gagal membuat QR', 'Gagal');
+          }
+        } catch (e) {
+          $f7.dialog.close();
+          $f7.dialog.alert('Tidak bisa terhubung ke server', 'Error');
+        }
+      });
+
+      // Salin token
+      document.getElementById('btn-copy-isi').addEventListener('click', () => {
+        if (!tokenSaatIni) return;
+        navigator.clipboard.writeText(tokenSaatIni).then(() => {
+          $f7.toast.create({ text: 'Token disalin!', closeTimeout: 2000 }).open();
+        }).catch(() => {
+          const input = document.createElement('input');
+          input.value = tokenSaatIni;
+          document.body.appendChild(input);
+          input.select();
+          document.execCommand('copy');
+          document.body.removeChild(input);
+          $f7.toast.create({ text: 'Token disalin!', closeTimeout: 2000 }).open();
+        });
+      });
+    });
+
+    $on('pageBeforeRemove', () => {
+      if (timerInterval) clearInterval(timerInterval);
+    });
+
+    return $render;
+  };
+</script>

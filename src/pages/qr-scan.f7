@@ -1,0 +1,444 @@
+<template>
+  <div class="page" data-name="qr-scan">
+    <div class="navbar" style="background: #0EA5E9;">
+      <div class="navbar-bg"></div>
+      <div class="navbar-inner">
+        <div class="left">
+          <a class="link back" style="color: #fff;">
+            <i class="material-icons">arrow_back</i>
+          </a>
+        </div>
+        <div class="title" style="color: #fff;">Scan QR & Kirim</div>
+      </div>
+    </div>
+
+    <div class="page-content" style="background: #F1F5F9;">
+      <div style="padding: 20px;">
+
+        <!-- Area Scan -->
+        <div style="background: #fff; border-radius: 15px; padding: 20px; margin-bottom: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); text-align: center;">
+          <h3 style="margin: 0 0 15px; color: #0EA5E9; font-size: 16px;">Scan QR Penerima</h3>
+
+          <div style="width: 100%; max-width: 280px; margin: 0 auto; background: #F1F5F9; border-radius: 15px; padding: 30px 0; border: 2px dashed #CBD5E1;">
+            <i class="material-icons" style="font-size: 64px; color: #0EA5E9;">qr_code_scanner</i>
+          </div>
+
+          <button id="btn-mulai-scan" class="button button-fill" style="background: #0EA5E9; border-radius: 10px; margin-top: 15px; height: 45px; font-size: 15px; font-weight: bold;">
+            <i class="material-icons" style="vertical-align: middle; margin-right: 5px;">qr_code_scanner</i>
+            Mulai Scan
+          </button>
+          <p style="color: #94A3B8; font-size: 11px; margin: 8px 0 0;">
+            Jika kamera tidak bisa, gunakan input token manual di bawah
+          </p>
+        </div>
+
+        <!-- Input Manual Token -->
+        <div style="background: #fff; border-radius: 15px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+          <h3 style="margin: 0 0 10px; color: #0EA5E9; font-size: 15px;">Atau Input Token Manual</h3>
+          <p style="margin: 0 0 10px; font-size: 12px; color: #64748B;">
+            Token bisa didapat dari halaman <strong>Terima Uang</strong> penerima (tombol Salin Token)
+          </p>
+          <input type="text" id="input-token" placeholder="Paste token QR di sini"
+            style="border: 1px solid #E2E8F0; border-radius: 10px; padding: 12px 15px; width: 100%; font-size: 14px; box-sizing: border-box; margin-bottom: 10px;"/>
+          <button id="btn-cek-token" class="button button-fill" style="background: #2e7d32; border-radius: 10px; height: 45px; font-size: 15px; font-weight: bold;">
+            Proses Transfer
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+  import Api from '../js/api.js';
+
+  export default (props, { $f7, $on }) => {
+
+    const lakukanTransfer = async (tokenAsli) => {
+      $f7.dialog.preloader('Memproses transfer...');
+      try {
+        const hasil = await Api.transfer(tokenAsli);
+        $f7.dialog.close();
+        if (hasil.sukses) {
+          tampilkanSlipTransaksi(hasil);
+        } else {
+          $f7.dialog.alert(hasil.pesan || 'Transfer gagal', 'Gagal');
+        }
+      } catch (e) {
+        $f7.dialog.close();
+        $f7.dialog.alert('Tidak bisa terhubung ke server', 'Error');
+      }
+    };
+
+    const samarkanNoHp = (noHp) => {
+      if (!noHp || noHp.length < 8) return noHp || '-';
+      return noHp.slice(0, 4) + '****' + noHp.slice(-4);
+    };
+
+    const buatGambarSlip = (data) => {
+      const userSekarang = Api.ambilUser();
+      const W = 700, H = 1150;
+      const canvas = document.createElement('canvas');
+      canvas.width = W;
+      canvas.height = H;
+      const ctx = canvas.getContext('2d');
+
+      // Background
+      ctx.fillStyle = '#F1F5F9';
+      ctx.fillRect(0, 0, W, H);
+
+      // Card putih
+      const pad = 40;
+      ctx.fillStyle = '#ffffff';
+      ctx.beginPath();
+      ctx.roundRect(pad, pad, W - pad * 2, H - pad * 2, 20);
+      ctx.fill();
+
+      let y = pad + 70;
+      const cx = W / 2;
+
+      // Logo bulat
+      ctx.fillStyle = '#0EA5E9';
+      ctx.beginPath();
+      ctx.arc(cx, y, 42, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 34px Arial';
+      ctx.textAlign = 'center';
+      ctx.fillText('S', cx, y + 12);
+
+      y += 70;
+      ctx.fillStyle = '#0EA5E9';
+      ctx.font = 'bold 30px Arial';
+      ctx.fillText('SakuPay', cx, y);
+
+      y += 40;
+      ctx.fillStyle = '#94A3B8';
+      ctx.font = '16px Arial';
+      ctx.fillText(`${data.waktu || ''}  •  ID ${samarkanNoHp(userSekarang.no_hp)}`, cx, y);
+
+      y += 30;
+      ctx.strokeStyle = '#E2E8F0';
+      ctx.beginPath();
+      ctx.moveTo(pad + 30, y);
+      ctx.lineTo(W - pad - 30, y);
+      ctx.stroke();
+
+      // Checkmark sukses
+      y += 50;
+      ctx.fillStyle = '#22C55E';
+      ctx.beginPath();
+      ctx.arc(pad + 55, y - 8, 16, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = '#fff';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(pad + 48, y - 8);
+      ctx.lineTo(pad + 53, y - 3);
+      ctx.lineTo(pad + 62, y - 15);
+      ctx.stroke();
+
+      ctx.textAlign = 'left';
+      ctx.fillStyle = '#64748B';
+      ctx.font = '18px Arial';
+      ctx.fillText('Transaksi berhasil!', pad + 80, y - 2);
+
+      y += 40;
+      ctx.fillStyle = '#1E293B';
+      ctx.font = 'bold 22px Arial';
+      const namaPenerima = (data.penerima && data.penerima.username) || 'Penerima';
+      const hpPenerima = data.penerima ? samarkanNoHp(data.penerima.no_hp) : '';
+      ctx.fillText(`Kirim Uang ke ${namaPenerima}`, pad + 30, y);
+      if (hpPenerima) {
+        y += 28;
+        ctx.font = '16px Arial';
+        ctx.fillStyle = '#64748B';
+        ctx.fillText(hpPenerima, pad + 30, y);
+      }
+
+      y += 35;
+      ctx.strokeStyle = '#E2E8F0';
+      ctx.beginPath();
+      ctx.moveTo(pad + 30, y);
+      ctx.lineTo(W - pad - 30, y);
+      ctx.stroke();
+
+      // Total Bayar
+      y += 25;
+      ctx.fillStyle = '#EFF6FF';
+      ctx.beginPath();
+      ctx.roundRect(pad + 30, y, W - pad * 2 - 60, 70, 10);
+      ctx.fill();
+      ctx.fillStyle = '#1E293B';
+      ctx.font = 'bold 18px Arial';
+      ctx.fillText('Total Bayar', pad + 50, y + 42);
+      ctx.textAlign = 'right';
+      ctx.font = 'bold 22px Arial';
+      ctx.fillText(`Rp ${Number(data.nominal).toLocaleString('id-ID')}`, W - pad - 50, y + 42);
+      ctx.textAlign = 'left';
+
+      y += 100;
+      ctx.fillStyle = '#64748B';
+      ctx.font = '16px Arial';
+      ctx.fillText('Metode Pembayaran', pad + 30, y);
+      ctx.textAlign = 'right';
+      ctx.fillStyle = '#1E293B';
+      ctx.fillText('Saldo SakuPay', W - pad - 30, y);
+      ctx.textAlign = 'left';
+
+      y += 40;
+      ctx.strokeStyle = '#E2E8F0';
+      ctx.beginPath();
+      ctx.moveTo(pad + 30, y);
+      ctx.lineTo(W - pad - 30, y);
+      ctx.stroke();
+
+      // Detail Penerima
+      y += 40;
+      ctx.fillStyle = '#1E293B';
+      ctx.font = 'bold 18px Arial';
+      ctx.fillText('Detail Penerima', pad + 30, y);
+
+      y += 35;
+      ctx.font = '16px Arial';
+      ctx.fillStyle = '#94A3B8';
+      ctx.fillText('Nama', pad + 30, y);
+      ctx.textAlign = 'right';
+      ctx.fillStyle = '#1E293B';
+      ctx.fillText(namaPenerima, W - pad - 30, y);
+      ctx.textAlign = 'left';
+
+      y += 32;
+      ctx.fillStyle = '#94A3B8';
+      ctx.fillText('No. HP', pad + 30, y);
+      ctx.textAlign = 'right';
+      ctx.fillStyle = '#1E293B';
+      ctx.fillText(hpPenerima || '-', W - pad - 30, y);
+      ctx.textAlign = 'left';
+
+      y += 35;
+      ctx.strokeStyle = '#E2E8F0';
+      ctx.beginPath();
+      ctx.moveTo(pad + 30, y);
+      ctx.lineTo(W - pad - 30, y);
+      ctx.stroke();
+
+      // Detail Transaksi
+      y += 40;
+      ctx.fillStyle = '#1E293B';
+      ctx.font = 'bold 18px Arial';
+      ctx.fillText('Detail Transaksi', pad + 30, y);
+
+      y += 35;
+      ctx.font = '16px Arial';
+      ctx.fillStyle = '#94A3B8';
+      ctx.fillText('ID Transaksi', pad + 30, y);
+      ctx.textAlign = 'right';
+      ctx.fillStyle = '#1E293B';
+      ctx.fillText(String(data.id_transaksi || '-'), W - pad - 30, y);
+      ctx.textAlign = 'left';
+
+      y += 32;
+      ctx.fillStyle = '#94A3B8';
+      ctx.fillText('Waktu', pad + 30, y);
+      ctx.textAlign = 'right';
+      ctx.fillStyle = '#1E293B';
+      ctx.fillText(data.waktu || '-', W - pad - 30, y);
+      ctx.textAlign = 'left';
+
+      // Footer
+      ctx.textAlign = 'center';
+      ctx.fillStyle = '#CBD5E1';
+      ctx.font = '14px Arial';
+      ctx.fillText('SakuPay - Dompet Digital', cx, H - pad - 30);
+
+      return canvas.toDataURL('image/png');
+    };
+
+    // =====================================================================
+    // FUNGSI BAGIKAN SLIP - SUDAH DIPERBAIKI
+    // Urutan: 1) coba plugin socialsharing (gambar+teks)
+    //         2) fallback ke WhatsApp deep link (teks saja)
+    // =====================================================================
+    const bagikanSlip = (gambarBase64, data) => {
+      const namaPenerima = (data.penerima && data.penerima.username) || '';
+      const nominal = `Rp ${Number(data.nominal).toLocaleString('id-ID')}`;
+      const idTrx = data.id_transaksi || '-';
+      const waktu = data.waktu || '-';
+
+      const teks =
+        '*SLIP TRANSAKSI SAKUPAY*\n' +
+        `Transfer berhasil ke ${namaPenerima}\n` +
+        `Jumlah: ${nominal}\n` +
+        `ID Transaksi: ${idTrx}\n` +
+        `Waktu: ${waktu}\n` +
+        '_SakuPay - Dompet Digital_';
+
+      const socialsharing = window.plugins && window.plugins.socialsharing;
+
+      if (socialsharing) {
+        // Plugin terpasang → tampilkan native share sheet Android
+        // user bisa pilih WhatsApp, Telegram, dll
+        // gambar slip ikut terkirim
+        socialsharing.share(
+          teks,           // pesan teks
+          'Slip SakuPay', // judul (subject)
+          gambarBase64,   // gambar slip base64
+          null,           // url
+          () => {
+            // Berhasil dibagikan
+          },
+          (err) => {
+            // Gagal share gambar → fallback teks ke WA
+            const encoded = encodeURIComponent(teks);
+            window.open('whatsapp://send?text=' + encoded, '_system');
+          }
+        );
+      } else {
+        // Plugin tidak ada → langsung buka WhatsApp dengan teks
+        const encoded = encodeURIComponent(teks);
+        const berhasil = window.open('whatsapp://send?text=' + encoded, '_system');
+        // Fallback ke web WhatsApp jika app WA tidak terinstall
+        if (!berhasil) {
+          window.open('https://wa.me/?text=' + encoded, '_system');
+        }
+      }
+    };
+
+    const tampilkanSlipTransaksi = (hasil) => {
+      const gambarBase64 = buatGambarSlip(hasil);
+      const popup = $f7.popup.create({
+        content: `
+          <div class="popup" style="background: #F1F5F9;">
+            <div class="page">
+              <div class="navbar" style="background: #0EA5E9;">
+                <div class="navbar-bg"></div>
+                <div class="navbar-inner">
+                  <div class="left">
+                    <a class="link popup-close" style="color: #fff;"><i class="material-icons">close</i></a>
+                  </div>
+                  <div class="title" style="color: #fff;">Slip Transaksi</div>
+                </div>
+              </div>
+              <div class="page-content" style="background: #F1F5F9;">
+                <div style="padding: 15px;">
+                  <img src="${gambarBase64}" style="width: 100%; border-radius: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.08);"/>
+                  <div style="display: flex; gap: 10px; margin-top: 15px;">
+                    <button class="button button-fill button-outline popup-close" style="flex: 1; border-radius: 10px; height: 45px; color: #0EA5E9; border-color: #0EA5E9; font-weight: bold;">
+                      Tutup
+                    </button>
+                    <button id="btn-share-wa" class="button button-fill" style="flex: 1; background: #22C55E; border-radius: 10px; height: 45px; font-weight: bold;">
+                      <i class="material-icons" style="vertical-align: middle; margin-right: 5px; font-size: 18px;">share</i>
+                      Bagikan
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        `,
+        on: {
+          opened(p) {
+            p.el.querySelector('#btn-share-wa').addEventListener('click', () => {
+              bagikanSlip(gambarBase64, hasil);
+            });
+          },
+          closed() {
+            $f7.views.main.router.navigate('/home/', { reloadAll: true });
+          },
+        },
+      });
+      popup.open();
+    };
+
+    const prosesToken = (token) => {
+      let tokenAsli = token;
+      let infoKonfirmasi = null;
+
+      try {
+        const parsed = JSON.parse(token);
+        if (parsed && parsed.token) {
+          tokenAsli = parsed.token;
+          if (parsed.nominal) {
+            infoKonfirmasi = {
+              nominal: parsed.nominal,
+              username: parsed.username || 'penerima'
+            };
+          }
+        }
+      } catch (e) {
+        // Bukan JSON, lanjut transfer langsung
+      }
+
+      if (infoKonfirmasi) {
+        $f7.dialog.confirm(
+          `Kirim Rp ${Number(infoKonfirmasi.nominal).toLocaleString('id-ID')} ke ${infoKonfirmasi.username}?`,
+          'Konfirmasi Transfer',
+          () => {
+            lakukanTransfer(tokenAsli);
+          },
+          () => {
+            $f7.dialog.close();
+          }
+        );
+      } else {
+        lakukanTransfer(tokenAsli);
+      }
+    };
+
+    const mulaiScanNative = () => {
+      const mlkit = window.cordova && window.cordova.plugins && window.cordova.plugins.mlkit;
+      if (!mlkit || !mlkit.barcodeScanner) {
+        $f7.dialog.alert(
+          'Scan kamera cuma bisa jalan di aplikasi Android (apk yang sudah di-build), tidak di browser/localhost.\nGunakan input token manual di bawah untuk testing di browser.',
+          'Info'
+        );
+        return;
+      }
+
+      mlkit.barcodeScanner.scan(
+        {
+          barcodeFormats: { QRCode: true },
+          detectorSize: 0.6,
+          beepOnSuccess: true,
+          vibrateOnSuccess: true,
+        },
+        (result) => {
+          if (result && result.text) {
+            prosesToken(result.text);
+          }
+        },
+        (error) => {
+          const pesan = (error || '').toString();
+          if (/cancel/i.test(pesan)) {
+            return;
+          }
+          if (/permission|izin/i.test(pesan)) {
+            $f7.dialog.alert(
+              'Izin kamera ditolak. Buka Pengaturan HP → Aplikasi → SakuPay → Izin → aktifkan Kamera. Lalu coba lagi.',
+              'Info Kamera'
+            );
+          } else {
+            $f7.dialog.alert('Gagal scan QR: ' + pesan, 'Error');
+          }
+        }
+      );
+    };
+
+    $on('pageInit', () => {
+      document.getElementById('btn-mulai-scan').addEventListener('click', mulaiScanNative);
+
+      document.getElementById('btn-cek-token').addEventListener('click', () => {
+        const token = document.getElementById('input-token').value.trim();
+        if (!token) {
+          $f7.dialog.alert('Masukkan token QR!', 'Peringatan');
+          return;
+        }
+        prosesToken(token);
+      });
+    });
+
+    return $render;
+  };
+</script>

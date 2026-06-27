@@ -1,0 +1,176 @@
+<template>
+  <div class="page" data-name="qr-terima">
+    <div class="navbar" style="background: #0EA5E9;">
+      <div class="navbar-bg"></div>
+      <div class="navbar-inner">
+        <div class="left">
+          <a class="link back" style="color: #fff;">
+            <i class="material-icons">arrow_back</i>
+          </a>
+        </div>
+        <div class="title" style="color: #fff;">Terima Uang</div>
+      </div>
+    </div>
+
+    <div class="page-content" style="background: #F1F5F9;">
+      <div style="padding: 20px;">
+
+        <!-- Input Nominal -->
+        <div style="background: #fff; border-radius: 15px; padding: 20px; margin-bottom: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+          <h3 style="margin: 0 0 15px; color: #0EA5E9; font-size: 16px;">Masukkan Nominal</h3>
+          <div style="display: flex; align-items: center; border: 2px solid #0EA5E9; border-radius: 10px; padding: 12px 15px;">
+            <span style="color: #0EA5E9; font-weight: bold; font-size: 16px; margin-right: 8px;">Rp</span>
+            <input type="number" id="input-nominal" placeholder="0" min="1000"
+              style="border: none; outline: none; font-size: 20px; font-weight: bold; color: #0EA5E9; width: 100%;"/>
+          </div>
+
+          <!-- Nominal Cepat -->
+          <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px;">
+            <button class="btn-nominal button" data-nominal="5000"
+              style="background: #E0F2FE; color: #0EA5E9; border-radius: 20px; padding: 5px 12px; font-size: 12px; border: none;">
+              Rp 5.000
+            </button>
+            <button class="btn-nominal button" data-nominal="10000"
+              style="background: #E0F2FE; color: #0EA5E9; border-radius: 20px; padding: 5px 12px; font-size: 12px; border: none;">
+              Rp 10.000
+            </button>
+            <button class="btn-nominal button" data-nominal="20000"
+              style="background: #E0F2FE; color: #0EA5E9; border-radius: 20px; padding: 5px 12px; font-size: 12px; border: none;">
+              Rp 20.000
+            </button>
+            <button class="btn-nominal button" data-nominal="50000"
+              style="background: #E0F2FE; color: #0EA5E9; border-radius: 20px; padding: 5px 12px; font-size: 12px; border: none;">
+              Rp 50.000
+            </button>
+            <button class="btn-nominal button" data-nominal="100000"
+              style="background: #E0F2FE; color: #0EA5E9; border-radius: 20px; padding: 5px 12px; font-size: 12px; border: none;">
+              Rp 100.000
+            </button>
+            <button class="btn-nominal button" data-nominal="200000"
+              style="background: #E0F2FE; color: #0EA5E9; border-radius: 20px; padding: 5px 12px; font-size: 12px; border: none;">
+              Rp 200.000
+            </button>
+          </div>
+
+          <button id="btn-buat-qr" class="button button-fill" style="background: #0EA5E9; border-radius: 10px; margin-top: 15px; height: 45px; font-size: 15px; font-weight: bold;">
+            Buat QR Code
+          </button>
+        </div>
+
+        <!-- QR Code -->
+        <div id="box-qr" style="display: none; background: #fff; border-radius: 15px; padding: 20px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+          <p style="color: #64748B; margin: 0 0 5px; font-size: 13px;">QR Code untuk menerima</p>
+          <h2 id="nominal-qr" style="color: #0EA5E9; margin: 0 0 15px; font-size: 24px;">-</h2>
+          <img id="gambar-qr" src="" style="width: 220px; height: 220px; border-radius: 10px;"/>
+
+          <!-- FIX: Tampilkan token agar bisa dipakai input manual -->
+          <div style="margin-top: 12px; background: #F1F5F9; border-radius: 10px; padding: 10px;">
+            <p style="margin: 0 0 5px; font-size: 11px; color: #64748B;">Token QR (untuk input manual):</p>
+            <p id="text-token" style="margin: 0; font-size: 11px; color: #0EA5E9; word-break: break-all; font-family: monospace;"></p>
+            <button id="btn-copy-token" class="button" style="margin-top: 8px; border: 1px solid #0EA5E9; color: #0EA5E9; border-radius: 8px; height: 32px; font-size: 12px;">
+              <i class="material-icons" style="font-size: 14px; vertical-align: middle;">content_copy</i>
+              Salin Token
+            </button>
+          </div>
+
+          <div id="countdown" style="margin-top: 10px; padding: 8px; background: #fff3e0; border-radius: 8px;">
+            <p style="margin: 0; font-size: 13px; color: #e65100;">
+              <i class="material-icons" style="font-size: 14px; vertical-align: middle;">timer</i>
+              QR berlaku: <span id="timer-text" style="font-weight: bold;">60 detik</span>
+            </p>
+          </div>
+          <p style="color: #94A3B8; font-size: 12px; margin: 10px 0 0;">Minta pengirim untuk scan QR ini</p>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+  import Api from '../js/api.js';
+
+  export default (props, { $f7, $on }) => {
+    let timerInterval = null;
+    let tokenSaatIni = '';
+
+    $on('pageInit', () => {
+      // Nominal cepat
+      document.querySelectorAll('.btn-nominal').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.getElementById('input-nominal').value = btn.dataset.nominal;
+        });
+      });
+
+      // Buat QR
+      document.getElementById('btn-buat-qr').addEventListener('click', async () => {
+        const nominal = document.getElementById('input-nominal').value;
+        if (!nominal || nominal < 1000) {
+          $f7.dialog.alert('Masukkan nominal minimal Rp 1.000', 'Peringatan');
+          return;
+        }
+
+        $f7.dialog.preloader('Membuat QR...');
+        try {
+          const hasil = await Api.buatQR(nominal);
+          $f7.dialog.close();
+
+          if (hasil.sukses) {
+            document.getElementById('gambar-qr').src = hasil.qr;
+            document.getElementById('nominal-qr').textContent =
+              'Rp ' + Number(nominal).toLocaleString('id-ID');
+            document.getElementById('box-qr').style.display = 'block';
+
+            // FIX: Tampilkan token untuk input manual
+            tokenSaatIni = hasil.token || '';
+            document.getElementById('text-token').textContent = tokenSaatIni;
+
+            // Timer countdown 60 detik
+            if (timerInterval) clearInterval(timerInterval);
+            let detik = 60;
+            document.getElementById('timer-text').textContent = detik + ' detik';
+            timerInterval = setInterval(() => {
+              detik--;
+              document.getElementById('timer-text').textContent = detik + ' detik';
+              if (detik <= 0) {
+                clearInterval(timerInterval);
+                document.getElementById('timer-text').textContent = 'Kadaluarsa!';
+                document.getElementById('box-qr').style.display = 'none';
+                $f7.dialog.alert('QR sudah kadaluarsa, buat QR baru', 'Info');
+              }
+            }, 1000);
+          } else {
+            $f7.dialog.alert(hasil.pesan, 'Gagal');
+          }
+        } catch (e) {
+          $f7.dialog.close();
+          $f7.dialog.alert('Tidak bisa terhubung ke server', 'Error');
+        }
+      });
+
+      // Salin token
+      document.getElementById('btn-copy-token').addEventListener('click', () => {
+        if (tokenSaatIni) {
+          navigator.clipboard.writeText(tokenSaatIni).then(() => {
+            $f7.toast.create({ text: 'Token disalin!', closeTimeout: 2000 }).open();
+          }).catch(() => {
+            // fallback
+            const input = document.createElement('input');
+            input.value = tokenSaatIni;
+            document.body.appendChild(input);
+            input.select();
+            document.execCommand('copy');
+            document.body.removeChild(input);
+            $f7.toast.create({ text: 'Token disalin!', closeTimeout: 2000 }).open();
+          });
+        }
+      });
+    });
+
+    $on('pageBeforeRemove', () => {
+      if (timerInterval) clearInterval(timerInterval);
+    });
+
+    return $render;
+  };
+</script>
