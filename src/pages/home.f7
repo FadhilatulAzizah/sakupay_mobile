@@ -1,0 +1,255 @@
+<template>
+  <div class="page no-navbar" data-name="home">
+
+    <!-- ════════════════════════════════════════════
+         NAVBAR ATAS — FIXED (tidak ikut scroll)
+         Tetap di atas layar saat konten di-scroll.
+    ════════════════════════════════════════════ -->
+    <div style="
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 500;
+      background: linear-gradient(135deg, #0EA5E9, #0284C7);
+      padding: 50px 20px 15px;
+    ">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <p style="color: #BAE6FD; margin: 0; font-size: 13px;">Selamat datang,</p>
+          <h2 id="nama-user" style="color: #fff; margin: 0; font-size: 20px; font-weight: bold;">-</h2>
+        </div>
+        <div style="display: flex; gap: 10px;">
+          <a href="/riwayat/" class="link" data-animate="false">
+            <i class="material-icons" style="color: #fff; font-size: 28px;">history</i>
+          </a>
+          <a id="btn-logout" class="link">
+            <i class="material-icons" style="color: #fff; font-size: 28px;">logout</i>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════════
+         NAVBAR BAWAH — FIXED (tidak ikut scroll)
+         Menu: Beranda / Riwayat / E-Statement / Smart Budget
+    ════════════════════════════════════════════ -->
+    <div style="
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      z-index: 500;
+      background: #fff;
+      border-top: 1px solid #E2E8F0;
+      display: flex;
+      align-items: center;
+      height: 60px;
+    ">
+      <!-- Beranda (aktif) -->
+      <a href="/home/" class="link" data-animate="false" style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; text-decoration: none; padding: 6px 0;">
+        <i class="material-icons" style="color: #0EA5E9; font-size: 24px;">home</i>
+        <span style="font-size: 10px; color: #0EA5E9; font-weight: bold;">Beranda</span>
+      </a>
+      <!-- Riwayat -->
+      <a href="/riwayat/" class="link" data-animate="false" style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; text-decoration: none; padding: 6px 0;">
+        <i class="material-icons" style="color: #94A3B8; font-size: 24px;">receipt_long</i>
+        <span style="font-size: 10px; color: #94A3B8;">Riwayat</span>
+      </a>
+      <!-- E-Statement -->
+      <a href="/estatement/" class="link" data-animate="false" style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; text-decoration: none; padding: 6px 0;">
+        <i class="material-icons" style="color: #94A3B8; font-size: 24px;">picture_as_pdf</i>
+        <span style="font-size: 10px; color: #94A3B8;">E-Statement</span>
+      </a>
+      <!-- Smart Budget -->
+      <a href="/smart-budget/" class="link" data-animate="false" style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; text-decoration: none; padding: 6px 0;">
+        <i class="material-icons" style="color: #94A3B8; font-size: 24px;">savings</i>
+        <span style="font-size: 10px; color: #94A3B8;">Smart Budget</span>
+      </a>
+    </div>
+
+    <!-- ════════════════════════════════════════════
+         KONTEN UTAMA — bisa di-scroll
+         Padding atas  = tinggi fixed navbar atas  (~115px)
+         Padding bawah = tinggi fixed navbar bawah (~68px)
+    ════════════════════════════════════════════ -->
+    <div class="page-content" style="background: #F1F5F9; padding-top: 0; padding-bottom: 68px;">
+
+      <!-- Area biru (sambungan warna dari navbar atas) + Kartu Saldo -->
+      <div style="
+        background: linear-gradient(135deg, #0EA5E9, #0284C7);
+        padding: 115px 20px 60px;
+      ">
+        <div style="background: rgba(255,255,255,0.15); border-radius: 20px; padding: 20px; backdrop-filter: blur(10px);">
+          <p style="color: #BAE6FD; margin: 0 0 5px; font-size: 13px;">Saldo Anda</p>
+          <h1 id="saldo-user" style="color: #fff; margin: 0; font-size: 32px; font-weight: bold;">Rp -</h1>
+          <p id="nohp-user" style="color: #BAE6FD; margin: 10px 0 0; font-size: 13px;">-</p>
+        </div>
+      </div>
+
+      <!-- ── Menu Utama: 3 kolom (Terima · Kirim · Isi Saldo) ── -->
+      <div style="padding: 0 15px; margin-top: -40px;">
+        <div style="background: #fff; border-radius: 20px; padding: 22px 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.1);">
+          <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px;">
+
+            <!-- Terima -->
+            <a href="/qr-terima/" class="link" style="text-decoration: none;">
+              <div style="text-align: center; padding: 4px;">
+                <div style="width: 56px; height: 56px; background: #0EA5E9; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 9px;">
+                  <i class="material-icons" style="color: #fff; font-size: 27px;">qr_code</i>
+                </div>
+                <p style="margin: 0; font-size: 13px; font-weight: bold; color: #0EA5E9;">Terima</p>
+                <p style="margin: 2px 0 0; font-size: 10px; color: #64748B;">Buat QR</p>
+              </div>
+            </a>
+
+            <!-- Kirim -->
+            <a href="/qr-scan/" class="link" style="text-decoration: none;">
+              <div style="text-align: center; padding: 4px;">
+                <div style="width: 56px; height: 56px; background: #2e7d32; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 9px;">
+                  <i class="material-icons" style="color: #fff; font-size: 27px;">qr_code_scanner</i>
+                </div>
+                <p style="margin: 0; font-size: 13px; font-weight: bold; color: #2e7d32;">Kirim</p>
+                <p style="margin: 2px 0 0; font-size: 10px; color: #64748B;">Scan QR</p>
+              </div>
+            </a>
+
+            <!-- Isi Saldo -->
+            <a href="/isi-saldo/" class="link" style="text-decoration: none;">
+              <div style="text-align: center; padding: 4px;">
+                <div style="width: 56px; height: 56px; background: #388E3C; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 9px;">
+                  <i class="material-icons" style="color: #fff; font-size: 25px;">account_balance_wallet</i>
+                </div>
+                <p style="margin: 0; font-size: 13px; font-weight: bold; color: #388E3C;">Isi Saldo</p>
+                <p style="margin: 2px 0 0; font-size: 10px; color: #64748B;">Topup via Merchant</p>
+              </div>
+            </a>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Transaksi Terakhir ── -->
+      <div style="padding: 15px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+          <h3 style="margin: 0; font-size: 16px; color: #0EA5E9; font-weight: bold;">Transaksi Terakhir</h3>
+          <a href="/riwayat/" class="link" data-animate="false" style="font-size: 13px; color: #0EA5E9; font-weight: bold; text-decoration: none; display: flex; align-items: center; gap: 1px;">
+            Lihat Semua <i class="material-icons" style="font-size: 17px; line-height: 1;">chevron_right</i>
+          </a>
+        </div>
+        <div id="list-transaksi" style="background: #fff; border-radius: 15px; padding: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+          <p style="text-align: center; color: #CBD5E1; margin: 20px 0;">Memuat transaksi...</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</template>
+
+<script>
+  import Api from '../js/api.js';
+
+  export default (props, { $f7, $on }) => {
+    let autoRefreshInterval = null;
+
+    const muatData = async () => {
+      if (!Api.ambilToken()) return;
+
+      // Load saldo terbaru
+      try {
+        const saldo = await Api.cekSaldo();
+        if (saldo.sukses) {
+          document.getElementById('saldo-user').textContent =
+            'Rp ' + Number(saldo.saldo).toLocaleString('id-ID');
+        }
+      } catch (e) {}
+
+      // Load riwayat terakhir
+      try {
+        const riwayat = await Api.riwayat();
+        const container = document.getElementById('list-transaksi');
+        const user = Api.ambilUser();
+
+        if (riwayat.sukses) {
+          const semua = [
+            ...riwayat.transaksi.map(t => ({ ...t, jenis: 'transfer' })),
+            ...riwayat.topup.map(t => ({ ...t, jenis: 'topup' }))
+          ].sort((a, b) => new Date(b.dibuat_pada) - new Date(a.dibuat_pada)).slice(0, 5);
+
+          if (semua.length === 0) {
+            container.innerHTML = '<p style="text-align:center;color:#CBD5E1;margin:20px 0;">Belum ada transaksi</p>';
+            return;
+          }
+
+          container.innerHTML = semua.map(t => {
+            let icon, warna, judul, nominal;
+            if (t.jenis === 'topup') {
+              icon = 'add_circle'; warna = '#2e7d32';
+              judul = 'Isi Saldo';
+              nominal = '+Rp ' + Number(t.nominal).toLocaleString('id-ID');
+            } else if (t.id_pengirim === user.id) {
+              icon = 'arrow_upward'; warna = '#c62828';
+              judul = 'Kirim ke ' + t.nama_penerima;
+              nominal = '-Rp ' + Number(t.nominal).toLocaleString('id-ID');
+            } else {
+              icon = 'arrow_downward'; warna = '#2e7d32';
+              judul = 'Terima dari ' + t.nama_pengirim;
+              nominal = '+Rp ' + Number(t.nominal).toLocaleString('id-ID');
+            }
+            const tgl = new Date(t.dibuat_pada);
+            const tglStr = tgl.toLocaleDateString('id-ID');
+            const jamStr = tgl.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+            return `
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #F1F5F9;">
+                <div style="display:flex;align-items:center;gap:12px;">
+                  <div style="width:40px;height:40px;background:${warna}20;border-radius:50%;display:flex;align-items:center;justify-content:center;">
+                    <i class="material-icons" style="color:${warna};font-size:20px;">${icon}</i>
+                  </div>
+                  <div>
+                    <p style="margin:0;font-size:14px;font-weight:bold;color:#1E293B;">${judul}</p>
+                    <p style="margin:0;font-size:11px;color:#94A3B8;">${tglStr} • ${jamStr}</p>
+                  </div>
+                </div>
+                <p style="margin:0;font-size:14px;font-weight:bold;color:${warna};">${nominal}</p>
+              </div>`;
+          }).join('');
+        }
+      } catch (e) {}
+    };
+
+    $on('pageInit', async () => {
+      if (!Api.ambilToken()) {
+        $f7.views.main.router.navigate('/login/', { reloadAll: true });
+        return;
+      }
+
+      // Load data user
+      const user = Api.ambilUser();
+      document.getElementById('nama-user').textContent = user.username || '-';
+      document.getElementById('nohp-user').textContent = user.no_hp || '-';
+
+      // Load data pertama kali
+      await muatData();
+
+      // Auto refresh tiap 5 detik
+      autoRefreshInterval = setInterval(muatData, 5000);
+
+      // Logout - FIX: pakai router F7, bukan window.location.href
+      const btnLogout = document.getElementById('btn-logout');
+      if (btnLogout) {
+        btnLogout.addEventListener('click', () => {
+          $f7.dialog.confirm('Yakin ingin keluar?', 'Keluar', () => {
+            if (autoRefreshInterval) clearInterval(autoRefreshInterval);
+            Api.hapusToken();
+            localStorage.clear();
+            // FIX: gunakan router F7 bukan window.location.href
+            $f7.views.main.router.navigate('/login/', { reloadAll: true });
+          });
+        });
+      }
+    });
+
+    // Bersihkan interval saat pindah halaman
+    $on('pageBeforeRemove', () => {
+      if (autoRefreshInterval) clearInterval(autoRefreshInterval);
+    });
+
+    return $render;
+  };
+</script>

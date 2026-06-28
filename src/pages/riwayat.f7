@@ -1,0 +1,139 @@
+<template>
+  <div class="page" data-name="riwayat">
+    <div class="navbar" style="background: #0EA5E9;">
+      <div class="navbar-bg"></div>
+      <div class="navbar-inner">
+        <div class="title" style="color: #fff;">Riwayat Transaksi</div>
+      </div>
+    </div>
+
+    <div class="page-content" style="background: #F1F5F9; padding-bottom: 68px;">
+      <div style="padding: 15px;">
+
+        <!-- Filter Tab -->
+        <div style="display: flex; gap: 8px; margin-bottom: 15px;">
+          <button id="tab-semua"
+            style="background: #0EA5E9; color: #fff; border: none; border-radius: 20px; font-size: 13px; flex: 1; padding: 8px 0; cursor: pointer; font-weight: bold;">Semua</button>
+          <button id="tab-masuk"
+            style="background: #fff; color: #0EA5E9; border: 1.5px solid #0EA5E9; border-radius: 20px; font-size: 13px; flex: 1; padding: 8px 0; cursor: pointer;">Masuk</button>
+          <button id="tab-keluar"
+            style="background: #fff; color: #0EA5E9; border: 1.5px solid #0EA5E9; border-radius: 20px; font-size: 13px; flex: 1; padding: 8px 0; cursor: pointer;">Keluar</button>
+        </div>
+
+        <!-- List Transaksi -->
+        <div id="list-riwayat" style="background: #fff; border-radius: 15px; padding: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+          <p style="text-align: center; color: #CBD5E1; margin: 30px 0;">Memuat...</p>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ════ NAVBAR BAWAH FIXED — tidak ikut scroll ════ -->
+    <div style="position:fixed;bottom:0;left:0;right:0;z-index:500;background:#fff;border-top:1px solid #E2E8F0;display:flex;align-items:center;height:60px;">
+      <a href="/home/" class="link" data-animate="false" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;text-decoration:none;padding:6px 0;">
+        <i class="material-icons" style="color:#94A3B8;font-size:24px;">home</i>
+        <span style="font-size:10px;color:#94A3B8;">Beranda</span>
+      </a>
+      <a href="/riwayat/" class="link" data-animate="false" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;text-decoration:none;padding:6px 0;">
+        <i class="material-icons" style="color:#0EA5E9;font-size:24px;">receipt_long</i>
+        <span style="font-size:10px;color:#0EA5E9;font-weight:bold;">Riwayat</span>
+      </a>
+      <a href="/estatement/" class="link" data-animate="false" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;text-decoration:none;padding:6px 0;">
+        <i class="material-icons" style="color:#94A3B8;font-size:24px;">picture_as_pdf</i>
+        <span style="font-size:10px;color:#94A3B8;">E-Statement</span>
+      </a>
+      <a href="/smart-budget/" class="link" data-animate="false" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;text-decoration:none;padding:6px 0;">
+        <i class="material-icons" style="color:#94A3B8;font-size:24px;">savings</i>
+        <span style="font-size:10px;color:#94A3B8;">Smart Budget</span>
+      </a>
+    </div>
+  </div>
+</template>
+
+<script>
+  import Api from '../js/api.js';
+
+  export default (props, { $f7, $on }) => {
+    let semuaData = [];
+    const user = Api.ambilUser();
+
+    const renderList = (data) => {
+      const container = document.getElementById('list-riwayat');
+      if (data.length === 0) {
+        container.innerHTML = '<p style="text-align:center;color:#CBD5E1;margin:30px 0;">Tidak ada transaksi</p>';
+        return;
+      }
+      container.innerHTML = data.map(t => {
+        let icon, warna, judul, nominal;
+        if (t.jenis === 'topup') {
+          icon = 'add_circle'; warna = '#2e7d32';
+          judul = 'Isi Saldo';
+          nominal = '+Rp ' + Number(t.nominal).toLocaleString('id-ID');
+        } else if (t.id_pengirim === user.id) {
+          icon = 'arrow_upward'; warna = '#c62828';
+          judul = 'Kirim ke ' + t.nama_penerima;
+          nominal = '-Rp ' + Number(t.nominal).toLocaleString('id-ID');
+        } else {
+          icon = 'arrow_downward'; warna = '#2e7d32';
+          judul = 'Terima dari ' + t.nama_pengirim;
+          nominal = '+Rp ' + Number(t.nominal).toLocaleString('id-ID');
+        }
+        return `
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid #F1F5F9;">
+            <div style="display:flex;align-items:center;gap:12px;">
+              <div style="width:45px;height:45px;background:${warna}20;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                <i class="material-icons" style="color:${warna};font-size:22px;">${icon}</i>
+              </div>
+              <div>
+                <p style="margin:0;font-size:14px;font-weight:bold;color:#1E293B;">${judul}</p>
+                <p style="margin:2px 0 0;font-size:11px;color:#94A3B8;">${new Date(t.dibuat_pada).toLocaleString('id-ID')}</p>
+                ${t.jenis === 'transfer' ? `<span style="font-size:10px;color:${t.status==='berhasil'?'#2e7d32':'#c62828'};background:${t.status==='berhasil'?'#e8f5e9':'#ffebee'};padding:2px 6px;border-radius:10px;">${t.status}</span>` : ''}
+              </div>
+            </div>
+            <p style="margin:0;font-size:15px;font-weight:bold;color:${warna};">${nominal}</p>
+          </div>`;
+      }).join('');
+    };
+
+    const setTabAktif = (jenis) => {
+      const tabs = ['semua', 'masuk', 'keluar'];
+      tabs.forEach(t => {
+        const el = document.getElementById('tab-' + t);
+        if (!el) return;
+        if (t === jenis) {
+          el.style.cssText = 'background: #0EA5E9; color: #fff; border: none; border-radius: 20px; font-size: 13px; flex: 1; padding: 8px 0; cursor: pointer; font-weight: bold;';
+        } else {
+          el.style.cssText = 'background: #fff; color: #0EA5E9; border: 1.5px solid #0EA5E9; border-radius: 20px; font-size: 13px; flex: 1; padding: 8px 0; cursor: pointer;';
+        }
+      });
+    };
+
+    const filterTab = (jenis) => {
+      setTabAktif(jenis);
+      if (jenis === 'semua') renderList(semuaData);
+      else if (jenis === 'masuk') renderList(semuaData.filter(t => t.jenis === 'topup' || t.id_penerima === user.id));
+      else renderList(semuaData.filter(t => t.jenis === 'transfer' && t.id_pengirim === user.id));
+    };
+
+    $on('pageInit', async () => {
+      document.getElementById('tab-semua').addEventListener('click', () => filterTab('semua'));
+      document.getElementById('tab-masuk').addEventListener('click', () => filterTab('masuk'));
+      document.getElementById('tab-keluar').addEventListener('click', () => filterTab('keluar'));
+
+      try {
+        const riwayat = await Api.riwayat();
+        if (riwayat.sukses) {
+          semuaData = [
+            ...riwayat.transaksi.map(t => ({ ...t, jenis: 'transfer' })),
+            ...riwayat.topup.map(t => ({ ...t, jenis: 'topup' }))
+          ].sort((a, b) => new Date(b.dibuat_pada) - new Date(a.dibuat_pada));
+          renderList(semuaData);
+        }
+      } catch (e) {
+        document.getElementById('list-riwayat').innerHTML = '<p style="text-align:center;color:#CBD5E1;margin:30px 0;">Gagal memuat data</p>';
+      }
+    });
+
+    return $render;
+  };
+</script>

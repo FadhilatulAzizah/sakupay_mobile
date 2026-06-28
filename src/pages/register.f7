@@ -1,0 +1,117 @@
+<template>
+  <div class="page no-navbar" data-name="register">
+    <div class="page-content" style="background: linear-gradient(135deg, #0EA5E9, #0284C7); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box;">
+
+      <div style="width: 100%; max-width: 400px;">
+
+        <div style="text-align: center; margin-bottom: 25px;">
+          <div style="width: 75px; height: 75px; background: rgba(255,255,255,0.15); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px; border: 2px solid rgba(255,255,255,0.3);">
+            <i class="material-icons" style="font-size: 40px; color: #fff;">account_balance_wallet</i>
+          </div>
+          <h1 style="color: #fff; font-weight: bold; margin: 0; font-size: 26px;">SakuPay</h1>
+          <p style="color: #BAE6FD; margin: 5px 0 0; font-size: 13px;">Dompet Digital Anda</p>
+        </div>
+
+        <div style="background: #fff; border-radius: 24px; padding: 28px; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
+          <h2 style="text-align: center; color: #0EA5E9; margin: 0 0 4px; font-size: 22px; font-weight: bold;">Daftar</h2>
+          <p style="text-align: center; color: #94A3B8; font-size: 13px; margin: 0 0 22px;">Buat akun SakuPay baru</p>
+
+          <div id="error-reg" style="display:none; background: #ffebee; border-radius: 10px; padding: 10px 14px; margin-bottom: 15px; border-left: 4px solid #c62828;">
+            <p style="margin: 0; color: #c62828; font-size: 13px;">
+              <i class="material-icons" style="font-size: 16px; vertical-align: middle; margin-right: 4px;">error</i>
+              <span id="error-reg-text"></span>
+            </p>
+          </div>
+
+          <div id="sukses-reg" style="display:none; background: #e8f5e9; border-radius: 10px; padding: 10px 14px; margin-bottom: 15px; border-left: 4px solid #2e7d32;">
+            <p style="margin: 0; color: #2e7d32; font-size: 13px;">
+              <i class="material-icons" style="font-size: 16px; vertical-align: middle; margin-right: 4px;">check_circle</i>
+              Pendaftaran berhasil! Silakan masuk.
+            </p>
+          </div>
+
+          <div style="position: relative; margin-bottom: 14px;">
+            <i class="material-icons" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #94A3B8; font-size: 20px; pointer-events: none;">person</i>
+            <input type="text" id="reg-username" placeholder="Username"
+              style="border: 2px solid #E0F2FE; border-radius: 12px; padding: 14px 15px 14px 44px; width: 100%; font-size: 15px; box-sizing: border-box; outline: none; color: #1E293B;"/>
+          </div>
+
+          <div style="position: relative; margin-bottom: 14px;">
+            <i class="material-icons" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #94A3B8; font-size: 20px; pointer-events: none;">phone</i>
+            <input type="tel" id="reg-nohp" placeholder="Nomor HP (contoh: 08123456789)"
+              style="border: 2px solid #E0F2FE; border-radius: 12px; padding: 14px 15px 14px 44px; width: 100%; font-size: 15px; box-sizing: border-box; outline: none; color: #1E293B;"/>
+          </div>
+
+          <div style="position: relative; margin-bottom: 14px;">
+            <i class="material-icons" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #94A3B8; font-size: 20px; pointer-events: none;">lock</i>
+            <input type="password" id="reg-password" placeholder="Password"
+              style="border: 2px solid #E0F2FE; border-radius: 12px; padding: 14px 15px 14px 44px; width: 100%; font-size: 15px; box-sizing: border-box; outline: none; color: #1E293B;"/>
+          </div>
+
+          <div style="position: relative; margin-bottom: 20px;">
+            <i class="material-icons" style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #94A3B8; font-size: 20px; pointer-events: none;">lock_outline</i>
+            <input type="password" id="reg-konfirmasi" placeholder="Konfirmasi Password"
+              style="border: 2px solid #E0F2FE; border-radius: 12px; padding: 14px 15px 14px 44px; width: 100%; font-size: 15px; box-sizing: border-box; outline: none; color: #1E293B;"/>
+          </div>
+
+          <a id="btn-daftar" href="#" style="display: block; background: linear-gradient(135deg, #0EA5E9, #0284C7); border-radius: 12px; padding: 15px; text-align: center; text-decoration: none; box-shadow: 0 4px 15px rgba(14,165,233,0.4); margin-bottom: 15px;">
+            <span style="color: #fff; font-size: 16px; font-weight: bold;">Daftar Sekarang</span>
+          </a>
+
+          <p style="text-align: center; margin: 0; font-size: 14px; color: #94A3B8;">
+            Sudah punya akun?
+            <a href="/login/" style="color: #0EA5E9; font-weight: bold; text-decoration: none;"> Masuk</a>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+import Api from '../js/api.js';
+
+export default (props, { $f7, $on }) => {
+  $on('pageInit', () => {
+    const showError = (pesan) => {
+      document.getElementById('error-reg-text').textContent = pesan;
+      document.getElementById('error-reg').style.display = 'block';
+      document.getElementById('sukses-reg').style.display = 'none';
+    };
+
+    document.getElementById('btn-daftar').addEventListener('click', async (e) => {
+      e.preventDefault();
+      const username = document.getElementById('reg-username').value.trim();
+      const no_hp = document.getElementById('reg-nohp').value.trim();
+      const password = document.getElementById('reg-password').value;
+      const konfirmasi = document.getElementById('reg-konfirmasi').value;
+
+      document.getElementById('error-reg').style.display = 'none';
+
+      if (!username || !no_hp || !password || !konfirmasi) { showError('Semua field wajib diisi!'); return; }
+      if (password !== konfirmasi) { showError('Password tidak cocok!'); return; }
+      if (no_hp.length < 3) { showError('Nomor HP tidak valid!'); return; }
+
+      $f7.dialog.preloader('Mendaftarkan...');
+      try {
+        const hasil = await Api.daftar({ username, no_hp, password });
+        $f7.dialog.close();
+        if (hasil.sukses) {
+          document.getElementById('error-reg').style.display = 'none';
+          document.getElementById('sukses-reg').style.display = 'block';
+          setTimeout(() => {
+            $f7.views.main.router.navigate('/login/', { reloadAll: true });
+          }, 1500);
+        } else {
+          showError(hasil.pesan);
+        }
+      } catch (e) {
+        $f7.dialog.close();
+        showError('Tidak bisa terhubung ke server!');
+      }
+    });
+  });
+
+  return $render;
+};
+</script>

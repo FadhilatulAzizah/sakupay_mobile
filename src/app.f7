@@ -1,0 +1,14 @@
+<template>
+  <div id="app">
+    <div class="view view-main view-init safe-areas" data-url="/"></div>
+  </div>
+</template>
+
+<script>
+  export default (props, { $f7ready }) => {
+    $f7ready(() => {
+      console.log('SakuPay siap!');
+    });
+    return $render;
+  };
+</script>

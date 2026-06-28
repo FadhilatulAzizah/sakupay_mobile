@@ -1,0 +1,369 @@
+<template>
+  <div class="page" data-name="estatement">
+    <div class="navbar" style="background: #0EA5E9;">
+      <div class="navbar-bg"></div>
+      <div class="navbar-inner">
+        <div class="title" style="color: #fff;">E-Statement</div>
+      </div>
+    </div>
+
+    <div class="page-content" style="background: #F1F5F9; padding-bottom: 68px;">
+      <div style="padding: 20px;">
+
+        <!-- Pilih Bulan -->
+        <div style="background: #fff; border-radius: 15px; padding: 20px; margin-bottom: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+          <h3 style="margin: 0 0 15px; color: #0EA5E9; font-size: 16px;">Rekap Transaksi Bulanan</h3>
+          <div style="display: flex; gap: 10px; align-items: center;">
+            <select id="pilih-bulan" style="flex: 1; border: 1px solid #E2E8F0; border-radius: 10px; padding: 10px; font-size: 14px;">
+              <option value="1">Januari</option>
+              <option value="2">Februari</option>
+              <option value="3">Maret</option>
+              <option value="4">April</option>
+              <option value="5">Mei</option>
+              <option value="6">Juni</option>
+              <option value="7">Juli</option>
+              <option value="8">Agustus</option>
+              <option value="9">September</option>
+              <option value="10">Oktober</option>
+              <option value="11">November</option>
+              <option value="12">Desember</option>
+            </select>
+            <select id="pilih-tahun" style="flex: 1; border: 1px solid #E2E8F0; border-radius: 10px; padding: 10px; font-size: 14px;">
+              <option value="2024">2024</option>
+              <option value="2025">2025</option>
+              <option value="2026" selected>2026</option>
+            </select>
+          </div>
+          <button id="btn-lihat" class="button button-fill" style="background: #0EA5E9; border-radius: 10px; margin-top: 12px; height: 45px; font-size: 15px; font-weight: bold;">
+            Lihat Rekap
+          </button>
+        </div>
+
+        <!-- Hasil Rekap -->
+        <div id="box-rekap" style="display: none;">
+
+          <!-- Ringkasan -->
+          <div style="background: #fff; border-radius: 15px; padding: 20px; margin-bottom: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+            <h3 id="judul-rekap" style="margin: 0 0 15px; color: #0EA5E9; font-size: 16px;">-</h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+              <div style="background: #e8f5e9; border-radius: 10px; padding: 12px; text-align: center;">
+                <p style="margin: 0; font-size: 11px; color: #64748B;">Total Masuk</p>
+                <p id="total-masuk" style="margin: 5px 0 0; font-size: 15px; font-weight: bold; color: #2e7d32;">Rp 0</p>
+              </div>
+              <div style="background: #ffebee; border-radius: 10px; padding: 12px; text-align: center;">
+                <p style="margin: 0; font-size: 11px; color: #64748B;">Total Keluar</p>
+                <p id="total-keluar" style="margin: 5px 0 0; font-size: 15px; font-weight: bold; color: #c62828;">Rp 0</p>
+              </div>
+              <div style="background: #E0F2FE; border-radius: 10px; padding: 12px; text-align: center; grid-column: span 2;">
+                <p style="margin: 0; font-size: 11px; color: #64748B;">Total Transaksi</p>
+                <p id="total-transaksi" style="margin: 5px 0 0; font-size: 18px; font-weight: bold; color: #0EA5E9;">0</p>
+              </div>
+            </div>
+
+            <!-- FIX: Cetak PDF - buka URL langsung (kompatibel Cordova/Android) -->
+            <button id="btn-cetak-pdf" class="button button-fill" style="background: #c62828; border-radius: 10px; margin-top: 15px; height: 45px; font-size: 15px; font-weight: bold;">
+              <i class="material-icons" style="vertical-align: middle; margin-right: 5px;">picture_as_pdf</i>
+              Cetak PDF
+            </button>
+          </div>
+
+          <!-- FIX: Detail Transaksi dalam bentuk TABEL -->
+          <div style="background: #fff; border-radius: 15px; padding: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); overflow-x: auto;">
+            <h3 style="margin: 0 0 10px; color: #0EA5E9; font-size: 15px;">Detail Transaksi</h3>
+            <table id="tabel-transaksi" style="width: 100%; border-collapse: collapse; font-size: 12px;">
+              <thead>
+                <tr style="background: #0EA5E9; color: #fff;">
+                  <th style="padding: 8px; text-align: left; border-radius: 5px 0 0 0;">No</th>
+                  <th style="padding: 8px; text-align: left;">Keterangan</th>
+                  <th style="padding: 8px; text-align: left;">Tanggal</th>
+                  <th style="padding: 8px; text-align: right; border-radius: 0 5px 0 0;">Nominal</th>
+                </tr>
+              </thead>
+              <tbody id="tbody-transaksi">
+                <tr><td colspan="4" style="text-align:center;color:#CBD5E1;padding:20px;">Belum ada data</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ════ NAVBAR BAWAH FIXED — tidak ikut scroll ════ -->
+    <div style="position:fixed;bottom:0;left:0;right:0;z-index:500;background:#fff;border-top:1px solid #E2E8F0;display:flex;align-items:center;height:60px;">
+      <a href="/home/" class="link" data-animate="false" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;text-decoration:none;padding:6px 0;">
+        <i class="material-icons" style="color:#94A3B8;font-size:24px;">home</i>
+        <span style="font-size:10px;color:#94A3B8;">Beranda</span>
+      </a>
+      <a href="/riwayat/" class="link" data-animate="false" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;text-decoration:none;padding:6px 0;">
+        <i class="material-icons" style="color:#94A3B8;font-size:24px;">receipt_long</i>
+        <span style="font-size:10px;color:#94A3B8;">Riwayat</span>
+      </a>
+      <a href="/estatement/" class="link" data-animate="false" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;text-decoration:none;padding:6px 0;">
+        <i class="material-icons" style="color:#0EA5E9;font-size:24px;">picture_as_pdf</i>
+        <span style="font-size:10px;color:#0EA5E9;font-weight:bold;">E-Statement</span>
+      </a>
+      <a href="/smart-budget/" class="link" data-animate="false" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;text-decoration:none;padding:6px 0;">
+        <i class="material-icons" style="color:#94A3B8;font-size:24px;">savings</i>
+        <span style="font-size:10px;color:#94A3B8;">Smart Budget</span>
+      </a>
+    </div>
+  </div>
+</template>
+
+<script>
+  import Api from '../js/api.js';
+  import { jsPDF } from 'jspdf';
+  import autoTable from 'jspdf-autotable';
+
+  export default (props, { $f7, $on }) => {
+    let dataRekap = [];
+    const user = Api.ambilUser();
+    const now = new Date();
+
+    $on('pageInit', () => {
+      document.getElementById('pilih-bulan').value = now.getMonth() + 1;
+
+      document.getElementById('btn-lihat').addEventListener('click', async () => {
+        const bulan = parseInt(document.getElementById('pilih-bulan').value);
+        const tahun = parseInt(document.getElementById('pilih-tahun').value);
+
+        $f7.dialog.preloader('Memuat data...');
+        try {
+          const riwayat = await Api.riwayat();
+          $f7.dialog.close();
+
+          if (!riwayat.sukses) return;
+
+          const semua = [
+            ...riwayat.transaksi.map(t => ({ ...t, jenis: 'transfer' })),
+            ...riwayat.topup.map(t => ({ ...t, jenis: 'topup' }))
+          ];
+
+          dataRekap = semua.filter(t => {
+            const tgl = new Date(t.dibuat_pada);
+            return tgl.getMonth() + 1 === bulan && tgl.getFullYear() === tahun;
+          }).sort((a, b) => new Date(b.dibuat_pada) - new Date(a.dibuat_pada));
+
+          let masuk = 0, keluar = 0;
+          dataRekap.forEach(t => {
+            if (t.jenis === 'topup' || t.id_penerima === user.id) masuk += Number(t.nominal);
+            else keluar += Number(t.nominal);
+          });
+
+          const namaBulan = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+          document.getElementById('judul-rekap').textContent = `Rekap ${namaBulan[bulan-1]} ${tahun}`;
+          document.getElementById('total-masuk').textContent = 'Rp ' + masuk.toLocaleString('id-ID');
+          document.getElementById('total-keluar').textContent = 'Rp ' + keluar.toLocaleString('id-ID');
+          document.getElementById('total-transaksi').textContent = dataRekap.length + ' transaksi';
+          document.getElementById('box-rekap').style.display = 'block';
+
+          // FIX: Isi tabel detail transaksi
+          const tbody = document.getElementById('tbody-transaksi');
+          if (dataRekap.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:#CBD5E1;padding:20px;">Tidak ada transaksi</td></tr>';
+          } else {
+            tbody.innerHTML = dataRekap.map((t, idx) => {
+              let judul, nominal, warna;
+              if (t.jenis === 'topup') {
+                judul = 'Isi Saldo'; warna = '#2e7d32';
+                nominal = '+Rp ' + Number(t.nominal).toLocaleString('id-ID');
+              } else if (t.id_pengirim === user.id) {
+                judul = 'Kirim ke ' + (t.nama_penerima || '-'); warna = '#c62828';
+                nominal = '-Rp ' + Number(t.nominal).toLocaleString('id-ID');
+              } else {
+                judul = 'Terima dari ' + (t.nama_pengirim || '-'); warna = '#2e7d32';
+                nominal = '+Rp ' + Number(t.nominal).toLocaleString('id-ID');
+              }
+              const bg = idx % 2 === 0 ? '#fff' : '#F8FAFC';
+              return `
+                <tr style="background: ${bg};">
+                  <td style="padding: 8px; color: #64748B;">${idx + 1}</td>
+                  <td style="padding: 8px; color: #1E293B; font-weight: 500;">${judul}</td>
+                  <td style="padding: 8px; color: #64748B; white-space: nowrap;">${new Date(t.dibuat_pada).toLocaleDateString('id-ID', { day:'2-digit', month:'short', year:'numeric' })}</td>
+                  <td style="padding: 8px; text-align: right; font-weight: bold; color: ${warna};">${nominal}</td>
+                </tr>`;
+            }).join('');
+          }
+
+        } catch (e) {
+          $f7.dialog.close();
+          $f7.dialog.alert('Gagal memuat data', 'Error');
+        }
+      });
+
+      // Cetak PDF - generate langsung di client pakai jsPDF (tidak perlu request ke server)
+      document.getElementById('btn-cetak-pdf').addEventListener('click', () => {
+        if (dataRekap.length === 0) {
+          $f7.dialog.alert('Tidak ada data untuk dicetak', 'Info');
+          return;
+        }
+
+        const bulan = parseInt(document.getElementById('pilih-bulan').value);
+        const tahun = parseInt(document.getElementById('pilih-tahun').value);
+        const namaBulan = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+
+        try {
+          const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+
+          // Header
+          doc.setFillColor(14, 165, 233);
+          doc.rect(0, 0, 210, 30, 'F');
+          doc.setTextColor(255, 255, 255);
+          doc.setFontSize(18);
+          doc.setFont('helvetica', 'bold');
+          doc.text('SakuPay', 14, 12);
+          doc.setFontSize(11);
+          doc.setFont('helvetica', 'normal');
+          doc.text('E-Statement', 14, 20);
+          doc.text(`Rekap ${namaBulan[bulan-1]} ${tahun}`, 14, 27);
+
+          // Info user
+          const userData = user;
+          doc.setTextColor(50, 50, 50);
+          doc.setFontSize(10);
+          doc.text(`Nama: ${userData.nama || userData.username || '-'}`, 14, 40);
+          doc.text(`No HP: ${userData.no_hp || '-'}`, 14, 46);
+          doc.text(`Tanggal Cetak: ${new Date().toLocaleDateString('id-ID', { day:'2-digit', month:'long', year:'numeric' })}`, 14, 52);
+
+          // Hitung ringkasan
+          let masuk = 0, keluar = 0;
+          dataRekap.forEach(t => {
+            if (t.jenis === 'topup' || t.id_penerima === userData.id) masuk += Number(t.nominal);
+            else keluar += Number(t.nominal);
+          });
+
+          // Box ringkasan
+          doc.setFillColor(232, 245, 233);
+          doc.roundedRect(14, 58, 85, 18, 3, 3, 'F');
+          doc.setTextColor(46, 125, 50);
+          doc.setFontSize(9);
+          doc.text('Total Masuk', 56, 65, { align: 'center' });
+          doc.setFontSize(11);
+          doc.setFont('helvetica', 'bold');
+          doc.text('Rp ' + masuk.toLocaleString('id-ID'), 56, 72, { align: 'center' });
+
+          doc.setFillColor(255, 235, 238);
+          doc.roundedRect(111, 58, 85, 18, 3, 3, 'F');
+          doc.setTextColor(198, 40, 40);
+          doc.setFontSize(9);
+          doc.setFont('helvetica', 'normal');
+          doc.text('Total Keluar', 153, 65, { align: 'center' });
+          doc.setFontSize(11);
+          doc.setFont('helvetica', 'bold');
+          doc.text('Rp ' + keluar.toLocaleString('id-ID'), 153, 72, { align: 'center' });
+
+          // Tabel transaksi
+          const rows = dataRekap.map((t, idx) => {
+            let judul, nominal;
+            if (t.jenis === 'topup') {
+              judul = 'Isi Saldo';
+              nominal = '+Rp ' + Number(t.nominal).toLocaleString('id-ID');
+            } else if (t.id_pengirim === userData.id) {
+              judul = 'Kirim ke ' + (t.nama_penerima || '-');
+              nominal = '-Rp ' + Number(t.nominal).toLocaleString('id-ID');
+            } else {
+              judul = 'Terima dari ' + (t.nama_pengirim || '-');
+              nominal = '+Rp ' + Number(t.nominal).toLocaleString('id-ID');
+            }
+            const tgl = new Date(t.dibuat_pada).toLocaleDateString('id-ID', { day:'2-digit', month:'short', year:'numeric' });
+            return [idx + 1, judul, tgl, nominal];
+          });
+
+          autoTable(doc, {
+            startY: 82,
+            head: [['No', 'Keterangan', 'Tanggal', 'Nominal']],
+            body: rows,
+            headStyles: { fillColor: [14, 165, 233], textColor: 255, fontStyle: 'bold', fontSize: 9 },
+            bodyStyles: { fontSize: 9, textColor: [50, 50, 50] },
+            columnStyles: { 0: { cellWidth: 12 }, 3: { halign: 'right' } },
+            alternateRowStyles: { fillColor: [248, 250, 252] },
+            margin: { left: 14, right: 14 },
+          });
+
+          // Footer
+          const pageCount = doc.internal.getNumberOfPages();
+          for (let i = 1; i <= pageCount; i++) {
+            doc.setPage(i);
+            doc.setFontSize(8);
+            doc.setTextColor(150, 150, 150);
+            doc.setFont('helvetica', 'normal');
+            doc.text(`SakuPay E-Statement | Halaman ${i} dari ${pageCount}`, 105, 290, { align: 'center' });
+          }
+
+          // FIX CETAK PDF: di browser/localhost pakai doc.save() biasa (download blob),
+          // tapi di apk Android (Cordova/WebView) blob+<a download> tidak jalan,
+          // jadi PDF ditulis ke storage HP lalu dibuka pakai aplikasi pembaca PDF
+          if (window.cordova) {
+            simpanDanBukaPdfDiHp(doc, `estatement-${namaBulan[bulan-1]}-${tahun}.pdf`);
+          } else {
+            doc.save(`estatement-${namaBulan[bulan-1]}-${tahun}.pdf`);
+          }
+
+        } catch (e) {
+          $f7.dialog.alert('Gagal membuat PDF: ' + e.message, 'Error');
+        }
+      });
+
+      // FIX CETAK PDF DI HP: tulis file PDF ke storage lalu buka dengan file-opener2
+      // Butuh plugin cordova-plugin-file & cordova-plugin-file-opener2 (lihat cordova/package.json)
+      const simpanDanBukaPdfDiHp = (doc, namaFile) => {
+        $f7.dialog.preloader('Menyimpan PDF...');
+        try {
+          const arrayBuffer = doc.output('arraybuffer');
+          const blobPdf = new Blob([arrayBuffer], { type: 'application/pdf' });
+
+          if (!window.cordova.file || !window.resolveLocalFileSystemURL) {
+            $f7.dialog.close();
+            $f7.dialog.alert('Plugin penyimpanan file belum terpasang. Jalankan: cordova plugin add cordova-plugin-file cordova-plugin-file-opener2, lalu build ulang aplikasi.', 'Plugin Belum Ada');
+            return;
+          }
+
+          const folderTujuan = window.cordova.file.externalCacheDirectory || window.cordova.file.cacheDirectory;
+
+          window.resolveLocalFileSystemURL(folderTujuan, (dirEntry) => {
+            dirEntry.getFile(namaFile, { create: true, exclusive: false }, (fileEntry) => {
+              fileEntry.createWriter((writer) => {
+                writer.onwriteend = () => {
+                  $f7.dialog.close();
+                  if (window.cordova.plugins && window.cordova.plugins.fileOpener2) {
+                    window.cordova.plugins.fileOpener2.open(
+                      fileEntry.nativeURL,
+                      'application/pdf',
+                      {
+                        error: () => $f7.dialog.alert('PDF tersimpan tapi tidak ada aplikasi pembaca PDF di HP ini.\nLokasi: ' + fileEntry.nativeURL, 'Info'),
+                        success: () => {}
+                      }
+                    );
+                  } else {
+                    $f7.dialog.alert('PDF tersimpan di:\n' + fileEntry.nativeURL, 'Tersimpan');
+                  }
+                };
+                writer.onerror = (e) => {
+                  $f7.dialog.close();
+                  $f7.dialog.alert('Gagal menyimpan PDF: ' + (e.toString ? e.toString() : 'unknown error'), 'Error');
+                };
+                writer.write(blobPdf);
+              }, () => {
+                $f7.dialog.close();
+                $f7.dialog.alert('Gagal membuat file PDF di storage HP', 'Error');
+              });
+            }, () => {
+              $f7.dialog.close();
+              $f7.dialog.alert('Gagal mengakses folder penyimpanan HP', 'Error');
+            });
+          }, () => {
+            $f7.dialog.close();
+            $f7.dialog.alert('Gagal mengakses storage HP', 'Error');
+          });
+        } catch (e) {
+          $f7.dialog.close();
+          $f7.dialog.alert('Gagal membuat PDF: ' + e.message, 'Error');
+        }
+      };
+    });
+
+    return $render;
+  };
+</script>
