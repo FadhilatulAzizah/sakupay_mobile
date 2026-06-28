@@ -3,6 +3,14 @@
     <div class="navbar" style="background: #0EA5E9;">
       <div class="navbar-bg"></div>
       <div class="navbar-inner">
+<<<<<<< HEAD
+=======
+        <div class="left">
+          <a class="link back" style="color: #fff;">
+            <i class="material-icons">arrow_back</i>
+          </a>
+        </div>
+>>>>>>> 30431964921c83238c3dc085b72a30a28be65510
         <div class="title" style="color: #fff;">Riwayat Transaksi</div>
       </div>
     </div>
@@ -30,6 +38,7 @@
 
     <!-- ════ NAVBAR BAWAH FIXED — tidak ikut scroll ════ -->
     <div style="position:fixed;bottom:0;left:0;right:0;z-index:500;background:#fff;border-top:1px solid #E2E8F0;display:flex;align-items:center;height:60px;">
+<<<<<<< HEAD
       <a href="/home/" class="link" data-animate="false" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;text-decoration:none;padding:6px 0;">
         <i class="material-icons" style="color:#94A3B8;font-size:24px;">home</i>
         <span style="font-size:10px;color:#94A3B8;">Beranda</span>
@@ -43,6 +52,21 @@
         <span style="font-size:10px;color:#94A3B8;">E-Statement</span>
       </a>
       <a href="/smart-budget/" class="link" data-animate="false" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;text-decoration:none;padding:6px 0;">
+=======
+      <a href="/home/" class="link" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;text-decoration:none;padding:6px 0;">
+        <i class="material-icons" style="color:#94A3B8;font-size:24px;">home</i>
+        <span style="font-size:10px;color:#94A3B8;">Beranda</span>
+      </a>
+      <a href="/riwayat/" class="link" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;text-decoration:none;padding:6px 0;">
+        <i class="material-icons" style="color:#0EA5E9;font-size:24px;">receipt_long</i>
+        <span style="font-size:10px;color:#0EA5E9;font-weight:bold;">Riwayat</span>
+      </a>
+      <a href="/estatement/" class="link" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;text-decoration:none;padding:6px 0;">
+        <i class="material-icons" style="color:#94A3B8;font-size:24px;">picture_as_pdf</i>
+        <span style="font-size:10px;color:#94A3B8;">E-Statement</span>
+      </a>
+      <a href="/smart-budget/" class="link" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;text-decoration:none;padding:6px 0;">
+>>>>>>> 30431964921c83238c3dc085b72a30a28be65510
         <i class="material-icons" style="color:#94A3B8;font-size:24px;">savings</i>
         <span style="font-size:10px;color:#94A3B8;">Smart Budget</span>
       </a>

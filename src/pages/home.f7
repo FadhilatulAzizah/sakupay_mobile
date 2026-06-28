@@ -18,7 +18,11 @@
           <h2 id="nama-user" style="color: #fff; margin: 0; font-size: 20px; font-weight: bold;">-</h2>
         </div>
         <div style="display: flex; gap: 10px;">
+<<<<<<< HEAD
           <a href="/riwayat/" class="link" data-animate="false">
+=======
+          <a href="/riwayat/" class="link">
+>>>>>>> 30431964921c83238c3dc085b72a30a28be65510
             <i class="material-icons" style="color: #fff; font-size: 28px;">history</i>
           </a>
           <a id="btn-logout" class="link">
@@ -43,22 +47,38 @@
       height: 60px;
     ">
       <!-- Beranda (aktif) -->
+<<<<<<< HEAD
       <a href="/home/" class="link" data-animate="false" style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; text-decoration: none; padding: 6px 0;">
+=======
+      <a href="/home/" class="link" style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; text-decoration: none; padding: 6px 0;">
+>>>>>>> 30431964921c83238c3dc085b72a30a28be65510
         <i class="material-icons" style="color: #0EA5E9; font-size: 24px;">home</i>
         <span style="font-size: 10px; color: #0EA5E9; font-weight: bold;">Beranda</span>
       </a>
       <!-- Riwayat -->
+<<<<<<< HEAD
       <a href="/riwayat/" class="link" data-animate="false" style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; text-decoration: none; padding: 6px 0;">
+=======
+      <a href="/riwayat/" class="link" style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; text-decoration: none; padding: 6px 0;">
+>>>>>>> 30431964921c83238c3dc085b72a30a28be65510
         <i class="material-icons" style="color: #94A3B8; font-size: 24px;">receipt_long</i>
         <span style="font-size: 10px; color: #94A3B8;">Riwayat</span>
       </a>
       <!-- E-Statement -->
+<<<<<<< HEAD
       <a href="/estatement/" class="link" data-animate="false" style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; text-decoration: none; padding: 6px 0;">
+=======
+      <a href="/estatement/" class="link" style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; text-decoration: none; padding: 6px 0;">
+>>>>>>> 30431964921c83238c3dc085b72a30a28be65510
         <i class="material-icons" style="color: #94A3B8; font-size: 24px;">picture_as_pdf</i>
         <span style="font-size: 10px; color: #94A3B8;">E-Statement</span>
       </a>
       <!-- Smart Budget -->
+<<<<<<< HEAD
       <a href="/smart-budget/" class="link" data-animate="false" style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; text-decoration: none; padding: 6px 0;">
+=======
+      <a href="/smart-budget/" class="link" style="flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; text-decoration: none; padding: 6px 0;">
+>>>>>>> 30431964921c83238c3dc085b72a30a28be65510
         <i class="material-icons" style="color: #94A3B8; font-size: 24px;">savings</i>
         <span style="font-size: 10px; color: #94A3B8;">Smart Budget</span>
       </a>
@@ -129,7 +149,11 @@
       <div style="padding: 15px;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
           <h3 style="margin: 0; font-size: 16px; color: #0EA5E9; font-weight: bold;">Transaksi Terakhir</h3>
+<<<<<<< HEAD
           <a href="/riwayat/" class="link" data-animate="false" style="font-size: 13px; color: #0EA5E9; font-weight: bold; text-decoration: none; display: flex; align-items: center; gap: 1px;">
+=======
+          <a href="/riwayat/" class="link" style="font-size: 13px; color: #0EA5E9; font-weight: bold; text-decoration: none; display: flex; align-items: center; gap: 1px;">
+>>>>>>> 30431964921c83238c3dc085b72a30a28be65510
             Lihat Semua <i class="material-icons" style="font-size: 17px; line-height: 1;">chevron_right</i>
           </a>
         </div>
